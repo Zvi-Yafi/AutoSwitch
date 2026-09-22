@@ -1,0 +1,455 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01B000000000000000000001 /* AutoSwitchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000001 /* AutoSwitchApp.swift */; };
+		01B000000000000000000002 /* Sources/Core/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000002 /* Sources/Core/Models.swift */; };
+		01B000000000000000000003 /* Sources/Core/DictionaryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000003 /* Sources/Core/DictionaryManager.swift */; };
+		01B000000000000000000004 /* Sources/Core/LayoutMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000004 /* Sources/Core/LayoutMapper.swift */; };
+		01B000000000000000000005 /* Sources/Engine/AutoSwitchStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000005 /* Sources/Engine/AutoSwitchStateMachine.swift */; };
+		01B000000000000000000006 /* Sources/Engine/CorrectionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000006 /* Sources/Engine/CorrectionHistory.swift */; };
+		01B000000000000000000007 /* Sources/Engine/LanguageDecisionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000007 /* Sources/Engine/LanguageDecisionEngine.swift */; };
+		01B000000000000000000008 /* Sources/Engine/OverrideController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000008 /* Sources/Engine/OverrideController.swift */; };
+		01B000000000000000000009 /* Sources/Engine/WordBufferManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000009 /* Sources/Engine/WordBufferManager.swift */; };
+		01B00000000000000000000A /* Sources/System/AppControlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A00000000000000000000A /* Sources/System/AppControlManager.swift */; };
+		01B00000000000000000000B /* Sources/System/AppStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A00000000000000000000B /* Sources/System/AppStrings.swift */; };
+		01B00000000000000000000C /* Sources/System/GlobalKeyboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A00000000000000000000C /* Sources/System/GlobalKeyboardMonitor.swift */; };
+		01B00000000000000000000D /* Sources/System/InputSourceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A00000000000000000000D /* Sources/System/InputSourceController.swift */; };
+		01B00000000000000000000E /* Sources/System/Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A00000000000000000000E /* Sources/System/Logger.swift */; };
+		01B00000000000000000000F /* Sources/System/SecureFieldDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A00000000000000000000F /* Sources/System/SecureFieldDetector.swift */; };
+		01B000000000000000000010 /* Sources/System/SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000010 /* Sources/System/SettingsStore.swift */; };
+		01B000000000000000000011 /* Sources/System/TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000011 /* Sources/System/TextInjector.swift */; };
+		01B000000000000000000012 /* Sources/UI/PermissionsOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000012 /* Sources/UI/PermissionsOnboardingView.swift */; };
+		01B000000000000000000013 /* Sources/UI/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000013 /* Sources/UI/SettingsView.swift */; };
+		01B000000000000000000014 /* Resources/AutoSwitch.icns in Resources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000014 /* Resources/AutoSwitch.icns */; };
+		01B000000000000000000015 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 01A000000000000000000017 /* Localizable.strings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01A000000000000000000001 /* AutoSwitchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoSwitchApp.swift; sourceTree = "<group>"; };
+		01A000000000000000000002 /* Sources/Core/Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/Models.swift; sourceTree = "<group>"; };
+		01A000000000000000000003 /* Sources/Core/DictionaryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/DictionaryManager.swift; sourceTree = "<group>"; };
+		01A000000000000000000004 /* Sources/Core/LayoutMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/LayoutMapper.swift; sourceTree = "<group>"; };
+		01A000000000000000000005 /* Sources/Engine/AutoSwitchStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Engine/AutoSwitchStateMachine.swift; sourceTree = "<group>"; };
+		01A000000000000000000006 /* Sources/Engine/CorrectionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Engine/CorrectionHistory.swift; sourceTree = "<group>"; };
+		01A000000000000000000007 /* Sources/Engine/LanguageDecisionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Engine/LanguageDecisionEngine.swift; sourceTree = "<group>"; };
+		01A000000000000000000008 /* Sources/Engine/OverrideController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Engine/OverrideController.swift; sourceTree = "<group>"; };
+		01A000000000000000000009 /* Sources/Engine/WordBufferManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Engine/WordBufferManager.swift; sourceTree = "<group>"; };
+		01A00000000000000000000A /* Sources/System/AppControlManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/AppControlManager.swift; sourceTree = "<group>"; };
+		01A00000000000000000000B /* Sources/System/AppStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/AppStrings.swift; sourceTree = "<group>"; };
+		01A00000000000000000000C /* Sources/System/GlobalKeyboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/GlobalKeyboardMonitor.swift; sourceTree = "<group>"; };
+		01A00000000000000000000D /* Sources/System/InputSourceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/InputSourceController.swift; sourceTree = "<group>"; };
+		01A00000000000000000000E /* Sources/System/Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/Logger.swift; sourceTree = "<group>"; };
+		01A00000000000000000000F /* Sources/System/SecureFieldDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/SecureFieldDetector.swift; sourceTree = "<group>"; };
+		01A000000000000000000010 /* Sources/System/SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/SettingsStore.swift; sourceTree = "<group>"; };
+		01A000000000000000000011 /* Sources/System/TextInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/System/TextInjector.swift; sourceTree = "<group>"; };
+		01A000000000000000000012 /* Sources/UI/PermissionsOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/UI/PermissionsOnboardingView.swift; sourceTree = "<group>"; };
+		01A000000000000000000013 /* Sources/UI/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/UI/SettingsView.swift; sourceTree = "<group>"; };
+		01A000000000000000000014 /* Resources/AutoSwitch.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Resources/AutoSwitch.icns; sourceTree = "<group>"; };
+		01A000000000000000000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01A000000000000000000016 /* AutoSwitch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AutoSwitch.entitlements; sourceTree = "<group>"; };
+		01A000000000000000000018 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		01A000000000000000000019 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = Resources/he.lproj/Localizable.strings; sourceTree = "<group>"; };
+		01A00000000000000000001A /* AutoSwitch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoSwitch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		01C000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01D000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				01D000000000000000000002,
+				01D000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		01D000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				01A000000000000000000001 /* AutoSwitchApp.swift */,
+				01A000000000000000000015 /* Info.plist */,
+				01A000000000000000000016 /* AutoSwitch.entitlements */,
+				01D000000000000000000004 /* Core */,
+				01D000000000000000000005 /* Engine */,
+				01D000000000000000000006 /* System */,
+				01D000000000000000000007 /* UI */,
+				01D000000000000000000008 /* Resources */,
+			);
+			sourceTree = "<group>";
+		};
+		01D000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				01A00000000000000000001A /* AutoSwitch.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		01D000000000000000000004 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				01A000000000000000000003 /* Sources/Core/DictionaryManager.swift */,
+				01A000000000000000000004 /* Sources/Core/LayoutMapper.swift */,
+				01A000000000000000000002 /* Sources/Core/Models.swift */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		01D000000000000000000005 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				01A000000000000000000005 /* Sources/Engine/AutoSwitchStateMachine.swift */,
+				01A000000000000000000006 /* Sources/Engine/CorrectionHistory.swift */,
+				01A000000000000000000007 /* Sources/Engine/LanguageDecisionEngine.swift */,
+				01A000000000000000000008 /* Sources/Engine/OverrideController.swift */,
+				01A000000000000000000009 /* Sources/Engine/WordBufferManager.swift */,
+			);
+			name = Engine;
+			sourceTree = "<group>";
+		};
+		01D000000000000000000006 /* System */ = {
+			isa = PBXGroup;
+			children = (
+				01A00000000000000000000A /* Sources/System/AppControlManager.swift */,
+				01A00000000000000000000B /* Sources/System/AppStrings.swift */,
+				01A00000000000000000000C /* Sources/System/GlobalKeyboardMonitor.swift */,
+				01A00000000000000000000D /* Sources/System/InputSourceController.swift */,
+				01A00000000000000000000E /* Sources/System/Logger.swift */,
+				01A00000000000000000000F /* Sources/System/SecureFieldDetector.swift */,
+				01A000000000000000000010 /* Sources/System/SettingsStore.swift */,
+				01A000000000000000000011 /* Sources/System/TextInjector.swift */,
+			);
+			name = System;
+			sourceTree = "<group>";
+		};
+		01D000000000000000000007 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				01A000000000000000000012 /* Sources/UI/PermissionsOnboardingView.swift */,
+				01A000000000000000000013 /* Sources/UI/SettingsView.swift */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
+		01D000000000000000000008 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				01A000000000000000000014 /* Resources/AutoSwitch.icns */,
+				01A000000000000000000017 /* Localizable.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		01E000000000000000000001 /* AutoSwitch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01F000000000000000000002 /* Build configuration list for PBXNativeTarget "AutoSwitch" */;
+			buildPhases = (
+				01C000000000000000000002 /* Sources */,
+				01C000000000000000000001 /* Frameworks */,
+				01C000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AutoSwitch;
+			productName = AutoSwitch;
+			productReference = 01A00000000000000000001A /* AutoSwitch.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		01E000000000000000000002 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					01E000000000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+				};
+			};
+			buildConfigurationList = 01F000000000000000000001 /* Build configuration list for PBXProject "AutoSwitch" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				he,
+			);
+			mainGroup = 01D000000000000000000001;
+			productRefGroup = 01D000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				01E000000000000000000001 /* AutoSwitch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		01C000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01B000000000000000000014 /* Resources/AutoSwitch.icns in Resources */,
+				01B000000000000000000015 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		01C000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01B000000000000000000001 /* AutoSwitchApp.swift in Sources */,
+				01B000000000000000000002 /* Sources/Core/Models.swift in Sources */,
+				01B000000000000000000003 /* Sources/Core/DictionaryManager.swift in Sources */,
+				01B000000000000000000004 /* Sources/Core/LayoutMapper.swift in Sources */,
+				01B000000000000000000005 /* Sources/Engine/AutoSwitchStateMachine.swift in Sources */,
+				01B000000000000000000006 /* Sources/Engine/CorrectionHistory.swift in Sources */,
+				01B000000000000000000007 /* Sources/Engine/LanguageDecisionEngine.swift in Sources */,
+				01B000000000000000000008 /* Sources/Engine/OverrideController.swift in Sources */,
+				01B000000000000000000009 /* Sources/Engine/WordBufferManager.swift in Sources */,
+				01B00000000000000000000A /* Sources/System/AppControlManager.swift in Sources */,
+				01B00000000000000000000B /* Sources/System/AppStrings.swift in Sources */,
+				01B00000000000000000000C /* Sources/System/GlobalKeyboardMonitor.swift in Sources */,
+				01B00000000000000000000D /* Sources/System/InputSourceController.swift in Sources */,
+				01B00000000000000000000E /* Sources/System/Logger.swift in Sources */,
+				01B00000000000000000000F /* Sources/System/SecureFieldDetector.swift in Sources */,
+				01B000000000000000000010 /* Sources/System/SettingsStore.swift in Sources */,
+				01B000000000000000000011 /* Sources/System/TextInjector.swift in Sources */,
+				01B000000000000000000012 /* Sources/UI/PermissionsOnboardingView.swift in Sources */,
+				01B000000000000000000013 /* Sources/UI/SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		01A000000000000000000017 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				01A000000000000000000018 /* en */,
+				01A000000000000000000019 /* he */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		01F000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		01F000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		01F000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "AutoSwitch-Distribution.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.autoswitch.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		01F000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "AutoSwitch-Distribution.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.autoswitch.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		01F000000000000000000001 /* Build configuration list for PBXProject "AutoSwitch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01F000000000000000000003 /* Debug */,
+				01F000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01F000000000000000000002 /* Build configuration list for PBXNativeTarget "AutoSwitch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01F000000000000000000005 /* Debug */,
+				01F000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 01E000000000000000000002 /* Project object */;
+}

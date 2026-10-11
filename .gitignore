@@ -61,3 +61,6 @@ AutoSwitch.app/
 *.key
 *.pem
 docs/quick_efficiency_audit_latest.txt
+
+# Required build input, including when a developer globally ignores plist files.
+!Info.plist

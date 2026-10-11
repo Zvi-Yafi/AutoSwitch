@@ -1,4 +1,9 @@
-# Testing 1.1.0 beta 1
+# Testing 1.1.0
+
+The maintainer tested the preceding beta locally and reported that installation and
+application behavior worked. The distribution changes in 1.1.0 add Developer ID
+signing and notarization. The checklist below remains useful for wider testing;
+it does not mean every scenario has been verified.
 
 ## Clean install
 
@@ -35,5 +40,6 @@
 - Intel: test execution on an actual Intel Mac; compilation alone is insufficient.
 - Check installation from a browser download on a different Mac.
 - Check logs contain no typed text in this production build.
-- The beta uses ad-hoc signing and is not notarized. Production distribution requires
-  a Developer ID Application certificate and successful Apple notarization.
+- Verify the downloaded app with `codesign --verify --deep --strict` and
+  `spctl --assess --type execute --verbose`. Version 1.1.0 uses Developer ID signing
+  and Apple notarization; the earlier beta used ad-hoc signing.

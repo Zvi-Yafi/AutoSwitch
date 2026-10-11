@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.autoswitch.app</string>
+	<key>CFBundleName</key>
+	<string>AutoSwitch</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleShortVersionString</key>
+	<string>1.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>9</string>
+	<key>CFBundleExecutable</key>
+	<string>AutoSwitch</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>he</string>
+	</array>
+	<key>CFBundleIconFile</key>
+	<string>AutoSwitch</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>AutoSwitch needs accessibility permissions to detect when you accidentally type in the wrong keyboard layout and correct it for you.</string>
+	<key>NSInputMonitoringUsageDescription</key>
+	<string>AutoSwitch needs input monitoring to detect keystrokes and correct layout mistakes.</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+</dict>
+</plist>

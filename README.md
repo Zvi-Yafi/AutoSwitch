@@ -6,11 +6,10 @@ It runs in the menu bar and processes corrections locally using macOS spelling A
 
 ## Download
 
-Get the complete app from this repository's [Releases](https://github.com/Zvi-Yafi/AutoSwitch/releases).
-**1.1.0 beta 1 is a testing release, ad-hoc signed and not notarized by Apple.**
+Get the complete app from this repository's [latest release](https://github.com/Zvi-Yafi/AutoSwitch/releases/latest).
+**1.1.0 is signed with Developer ID and notarized by Apple for direct download.**
 It includes both Apple Silicon and Intel executables and requires macOS 13 or later.
 Intel execution and installation on a separate Mac still need manual testing.
-This beta may be blocked by Gatekeeper; it is not advertised as a notarized release.
 
 ## Install and try it
 
@@ -23,7 +22,7 @@ This beta may be blocked by Gatekeeper; it is not advertised as a notarized rele
 
 This clean release uses the neutral bundle identifier `com.autoswitch.app`.
 Older installations used a different identifier, so permissions and preferences
-may need to be set again. The beta does not import previous settings automatically.
+may need to be set again. The app does not import previous settings automatically.
 
 ## Features
 

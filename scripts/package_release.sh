@@ -7,10 +7,11 @@ case "$MODE" in test|release) ;; *) echo "RELEASE_MODE must be test or release" 
 SIGN_ID="${CODESIGN_IDENTITY:-}"
 if [ "$MODE" = release ]; then
   if [ -z "$SIGN_ID" ]; then
-    SIGN_ID="$(security find-identity -v -p codesigning 2>/dev/null | grep 'Developer ID Application' | head -1 | awk '{print $2}' || true)"
+    echo "Set CODESIGN_IDENTITY to the SHA-1 hash of your Developer ID Application identity." >&2
+    exit 1
   fi
-  if [ -z "$SIGN_ID" ]; then
-    echo "A Developer ID Application identity is required for public distribution." >&2
+  if [ -z "${EXPECTED_TEAM_ID:-}" ]; then
+    echo "Set EXPECTED_TEAM_ID to the team that owns your Developer ID certificate." >&2
     exit 1
   fi
 fi
@@ -44,6 +45,10 @@ else
   DETAILS="$(codesign -dv --verbose=2 "$APP" 2>&1)"
   if [[ "$DETAILS" != *"Authority=Developer ID Application"* ]]; then
     echo "The signing identity is not Developer ID Application." >&2
+    exit 1
+  fi
+  if [[ "$DETAILS" != *"TeamIdentifier=$EXPECTED_TEAM_ID"* ]]; then
+    echo "The app was not signed by the expected Apple Developer team." >&2
     exit 1
   fi
 fi

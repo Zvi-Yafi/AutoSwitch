@@ -19,10 +19,9 @@ Run this once to set it up (one-time setup):
 
   xcrun notarytool store-credentials "$PROFILE" \\
     --apple-id "YOUR_APPLE_ID" \\
-    --team-id "YOUR_TEAM_ID" \\
-    --password "<your-app-specific-password>"
+    --team-id "YOUR_TEAM_ID"
 
-Then re-run this script.
+Enter your app-specific password at the prompt, then re-run this script.
 EOF
   exit 1
 fi
@@ -34,6 +33,10 @@ echo "$CODESIGN_OUT" | grep -E "Authority|TeamIdentifier|Runtime" || true
 if [[ "$CODESIGN_OUT" != *"Authority=Developer ID Application"* ]]; then
   echo "Error: App is not signed with Developer ID Application." >&2
   echo "Re-run: scripts/package_release.sh (make sure the Developer ID cert is in your keychain)." >&2
+  exit 1
+fi
+if [ -z "${EXPECTED_TEAM_ID:-}" ] || [[ "$CODESIGN_OUT" != *"TeamIdentifier=$EXPECTED_TEAM_ID"* ]]; then
+  echo "Error: App is not signed by EXPECTED_TEAM_ID." >&2
   exit 1
 fi
 

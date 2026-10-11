@@ -22,10 +22,25 @@ Create a `notarytool` profile named `AutoSwitch-Notary`, using your own Apple ac
 Do not commit credentials, certificate private keys, or personal account configuration.
 Apple Development certificates are not the distribution certificate.
 
-Update the version/build number in Info.plist and commit the reviewed source, then run:
+Find the SHA-1 hash of your own `Developer ID Application` identity with
+`security find-identity -v -p codesigning`. Set `CODESIGN_IDENTITY` to that hash
+and `EXPECTED_TEAM_ID` to your personal developer team ID. The release scripts
+require both values and verify the team on the signed app and DMG. Never choose
+a certificate from another team.
+
+Create the notary profile without putting its password in a shell command:
 
 ```sh
-scripts/release.sh
+xcrun notarytool store-credentials AutoSwitch-Notary \
+  --apple-id "YOUR_APPLE_ID" --team-id "YOUR_TEAM_ID"
+```
+
+The command prompts for an app-specific password and stores it in Keychain.
+Update the version/build number in Info.plist and commit the reviewed source,
+then run:
+
+```sh
+CODESIGN_IDENTITY="YOUR_DEVELOPER_ID_SHA1" EXPECTED_TEAM_ID="YOUR_TEAM_ID" scripts/release.sh
 codesign --verify --deep --strict build/AutoSwitch.app
 xcrun stapler validate build/AutoSwitch.app
 xcrun stapler validate build/AutoSwitch.dmg

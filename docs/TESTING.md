@@ -1,4 +1,4 @@
-# Testing 1.1.0
+# Testing 1.1.1
 
 The maintainer tested the preceding beta locally and reported that installation and
 application behavior worked. The distribution changes in 1.1.0 add Developer ID
@@ -12,6 +12,10 @@ it does not mean every scenario has been verified.
 - Confirm the menu bar item, onboarding, Accessibility and Input Monitoring permissions.
 - The new neutral bundle ID has separate preferences/permission grants.
 - Revoke and restore each permission and verify status/recovery after relaunch.
+- On a Mac where AutoSwitch has not requested Input Monitoring, confirm onboarding
+  triggers registration and remains responsive while the system prompt is open.
+- Try allowing and denying the system prompt; confirm the permission button updates
+  when granted and opens Input Monitoring settings when denied or still pending.
 
 ## Typing and overrides
 

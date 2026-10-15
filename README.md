@@ -7,7 +7,8 @@ It runs in the menu bar and processes corrections locally using macOS spelling A
 ## Download
 
 Get the complete app from this repository's [latest release](https://github.com/Zvi-Yafi/AutoSwitch/releases/latest).
-**1.1.0 is signed with Developer ID and notarized by Apple for direct download.**
+**1.1.1 is signed with Developer ID and notarized by Apple for direct download.**
+This update fixes Input Monitoring permission setup on first launch.
 It includes both Apple Silicon and Intel executables and requires macOS 13 or later.
 Intel execution and installation on a separate Mac still need manual testing.
 

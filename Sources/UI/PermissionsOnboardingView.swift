@@ -6,7 +6,7 @@ struct PermissionsOnboardingView: View {
     @State private var accessibilityGranted: Bool = false
     @State private var inputMonitoringGranted: Bool = false
     @State private var showingAccessibilityPrompt: Bool = false
-    @State private var showingInputMonitoringPrompt: Bool = false
+    @State private var awaitingInputMonitoringRegistration: Bool = false
     @State private var checkTimer: Timer?
     
     var onComplete: () -> Void
@@ -64,6 +64,7 @@ struct PermissionsOnboardingView: View {
         .frame(width: 600, height: 500)
         .onAppear {
             checkPermissions()
+            requestInputMonitoringRegistrationIfNeeded()
             startCheckingPermissions()
         }
         .onDisappear {
@@ -77,6 +78,13 @@ struct PermissionsOnboardingView: View {
         
         let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
         inputMonitoringGranted = (imAccess == kIOHIDAccessTypeGranted)
+
+        if awaitingInputMonitoringRegistration && imAccess != kIOHIDAccessTypeUnknown {
+            awaitingInputMonitoringRegistration = false
+            if imAccess == kIOHIDAccessTypeDenied {
+                openInputMonitoringSettings()
+            }
+        }
     }
     
     private func startCheckingPermissions() {
@@ -101,18 +109,42 @@ struct PermissionsOnboardingView: View {
         }
     }
     
-    private func requestInputMonitoringPermission() {
-        showingInputMonitoringPrompt = true
-        
-        IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
-        
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") {
-            NSWorkspace.shared.open(url)
+    private func requestInputMonitoringRegistrationIfNeeded() {
+        guard IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) == kIOHIDAccessTypeUnknown else { return }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            _ = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            showingInputMonitoringPrompt = false
+    }
+
+    private func openInputMonitoringSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") else {
+            return
+        }
+        NSWorkspace.shared.open(url)
+    }
+
+    private func requestInputMonitoringPermission() {
+        let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
+
+        if imAccess == kIOHIDAccessTypeGranted {
             checkPermissions()
+            return
+        }
+
+        if imAccess == kIOHIDAccessTypeDenied {
+            openInputMonitoringSettings()
+            return
+        }
+
+        guard !awaitingInputMonitoringRegistration else { return }
+        awaitingInputMonitoringRegistration = true
+        requestInputMonitoringRegistrationIfNeeded()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            guard awaitingInputMonitoringRegistration else { return }
+            awaitingInputMonitoringRegistration = false
+            openInputMonitoringSettings()
         }
     }
 }

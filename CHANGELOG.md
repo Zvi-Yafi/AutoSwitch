@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 — 2026-10-15
+
+- Request Input Monitoring registration when permission onboarding appears, so
+  AutoSwitch can be listed in macOS privacy settings on first launch.
+- Request permission off the main thread to keep onboarding responsive.
+- Handle granted, denied and pending permission states before opening Input
+  Monitoring settings, with a fallback when registration remains pending.
+
 ## 1.1.0 — 2026-10-11
 
 - Sign the universal macOS app with Developer ID and complete Apple notarization for

@@ -6,9 +6,22 @@ struct AutoSwitchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        Settings {
-            SettingsView()
+        // The settings NSWindow below is the sole owner of SettingsView.
+        // A Settings scene would create a second, independently managed window.
+        MenuBarExtra(AppStrings.appName, systemImage: "keyboard") {
+            Text(AppStrings.statusActive)
+            Divider()
+            Button(AppStrings.menuSettings) {
+                appDelegate.openSettings()
+            }
+            .keyboardShortcut(",", modifiers: .command)
+            Divider()
+            Button(AppStrings.menuQuit) {
+                NSApp.terminate(nil)
+            }
+            .keyboardShortcut("q", modifiers: .command)
         }
+        .menuBarExtraStyle(.menu)
         .commands {
             CommandGroup(replacing: .appSettings) {
                 Button(AppStrings.menuSettings) {
@@ -21,7 +34,6 @@ struct AutoSwitchApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
-    var statusItem: NSStatusItem?
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
     private var permissionTimer: Timer?
@@ -60,8 +72,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         } else {
             openSettings()
         }
-        
-        setupMenu()
+
     }
 
     private func shouldShowOnboarding() -> Bool {
@@ -169,25 +180,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             appLog("HEARTBEAT: Accessibility=\(accessibility) | TapActive=\(tapActive) | TapEnabled=\(tapEnabled) | EventsReceived=\(eventsReceived) | App=\(activeApp) | State=\(state)")
 
         }
-    }
-    
-    private func setupMenu() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        
-        if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "keyboard", accessibilityDescription: AppStrings.appName)
-        }
-        
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: AppStrings.statusActive, action: nil, keyEquivalent: ""))
-        menu.addItem(NSMenuItem.separator())
-        let settingsItem = NSMenuItem(title: AppStrings.menuSettings, action: #selector(openSettings), keyEquivalent: ",")
-        settingsItem.target = self
-        menu.addItem(settingsItem)
-        menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: AppStrings.menuQuit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        
-        statusItem?.menu = menu
     }
     
     @objc func openSettings() {

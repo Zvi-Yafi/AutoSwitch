@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.5 — 2026-10-25
+
+- Keep one populated settings window for startup, setup completion, menu-bar
+  Settings, Command-comma and reopening the app. Remove the independent SwiftUI
+  Settings scene that could create a second General window with toolbar icons.
+- Keep one menu-bar icon with the existing Settings and Quit actions.
+- Preserve keyboard correction and the single Accessibility permission flow.
+
 ## 1.1.4 — 2026-10-25
 
 - Start keyboard correction automatically after Accessibility access is granted,

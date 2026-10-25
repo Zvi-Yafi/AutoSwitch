@@ -1,9 +1,16 @@
-# Testing 1.1.4
+# Testing 1.1.5
 
 See VERIFICATION.md for the tested snapshot, observed results and limitations.
 Focused regressions are `scripts/run_monitor_startup_regression.py`,
 `scripts/run_permissions_onboarding_regression.py` and
 `scripts/run_geresh_policy_regression.sh`.
+
+## Single settings window
+
+- Verify one menu bar icon and one populated AutoSwitch Settings window.
+- Repeat Settings from the menu bar, Command-comma and reopening from Applications.
+- Close/reopen and minimize/restore it. Confirm no separate General window appears.
+- Confirm Quit from the menu bar exits the app.
 
 ## Clean install and permission transitions
 

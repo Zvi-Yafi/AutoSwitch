@@ -1,4 +1,40 @@
-# Verification — 1.1.4 (build 13)
+# Verification — 1.1.5 (build 14)
+
+Targeted validation on 2026-10-25 covers the duplicate-settings-window fix.
+The tested scaffold was public commit `df8b9ba863277150777214814b961f5c6e324785`
+with only AutoSwitchApp.swift replaced. Its SHA-256 is
+`d3a432374edede9e3617e4abd029746283dfdd57719e49c136aaeafb10c5d2f1`.
+The release uses these same product sources and resources; only version/build
+metadata and release documentation change after QA.
+
+- Xcode Release built arm64 and x86_64 with minimum macOS 13.0.
+- The Debug XCTest regression selection passed 40 tests, with two skipped because
+  additional Latin keyboard layouts were unavailable, and zero failures. Bulk
+  word evaluation and efficiency benchmarks were excluded.
+- Fourteen geresh-policy, six permission-onboarding and six monitor-startup
+  regression scenarios passed. No new test files were added for this release.
+- The previous installed app was removed and all com.autoswitch.app permissions
+  reset. The locally Developer ID signed candidate launched with one setup guide.
+  Granting Accessibility started exactly one keyboard tap without restarting.
+- The maintainer confirmed one populated AutoSwitch Settings window and one menu
+  bar icon after repeated Command-comma, close/reopen from the menu bar,
+  minimize/Settings and reopening from Applications. No separate General window
+  appeared. These UI checks were confirmed by the maintainer because the native
+  UI inspection tool could not read or screenshot the settings window.
+- The maintainer physically typed the Hebrew-layout keystrokes for hello and
+  confirmed correction to hello. Input Monitoring was independently observed as
+  No Items. Operational logs showed one tap and ten received events.
+- Settings serialization round-trip is covered by XCTest. Visual persistence
+  editing, actual Intel/macOS 13 execution, a new-machine/VM install, and broad
+  secure-field/focus coverage were not verified in this targeted run.
+
+The final universal app and DMG require Developer ID verification, notarization,
+stapling and Gatekeeper assessment before publication. Release notes record the
+final distribution results. See TESTING.md for the remaining broader checklist.
+
+---
+
+# Historical verification — 1.1.4 (build 13)
 
 Targeted validation on 2026-10-25 covers the first-launch monitor startup fix.
 The release product Swift sources and resources match the tested development

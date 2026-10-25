@@ -80,6 +80,16 @@ class LanguageDecisionEngine {
             return .rejected
         }
 
+        if let fullTokenDecision = evaluateFullTokenWithEdgeApostrophe(
+            parsedToken: parsedToken,
+            snapshot: snapshot,
+            sourceInputSourceID: sourceInputSourceID,
+            targetInputSources: targetInputSources,
+            settings: settings
+        ) {
+            return fullTokenDecision
+        }
+
         let originalLooksValid = originalIsKnownWord(parsedToken.lookupForms, installedInputSources: targetInputSources)
         var uniqueCandidates: [String: EvaluatedCandidate] = [:]
         for mappingTarget in targetInputSources {
@@ -172,6 +182,69 @@ class LanguageDecisionEngine {
 
         appLog("DIAG: Accept token raw='\(original)' candidate='\(bestCandidate.word)' score=\(bestCandidate.score)", level: .debug)
         return .accepted(candidate: bestCandidate)
+    }
+
+    private func evaluateFullTokenWithEdgeApostrophe(
+        parsedToken: ParsedToken,
+        snapshot: CorrectionSnapshot,
+        sourceInputSourceID: String,
+        targetInputSources: [InstalledInputSource],
+        settings: AppSettings
+    ) -> LanguageDecision? {
+        let edges = splitEdgeAffixes(for: parsedToken.raw)
+        guard containsApostropheVariant(edges.leadingAffix + edges.trailingAffix),
+              let fullVariant = parsedToken.variants.first(where: {
+                  $0.strippedCharacterCount == 0 && (2...20).contains($0.token.count)
+              }) else {
+            return nil
+        }
+
+        // A complete dictionary match takes priority over source evidence obtained
+        // by stripping the apostrophe. Only fall back to stripped forms when the
+        // complete token does not map to a word made entirely of letters.
+        var candidates: [EvaluatedCandidate] = []
+        for target in targetInputSources {
+            guard let mapped = mappedWord(
+                for: fullVariant,
+                snapshot: snapshot,
+                sourceInputSourceID: sourceInputSourceID,
+                targetInputSourceID: target.id
+            ),
+                  mapped != fullVariant.token,
+                  !mapped.isEmpty,
+                  mapped.allSatisfy(\.isLetter),
+                  !containsBlockingPattern(mapped),
+                  matchesExpectedScript(mapped, targetInputSource: target),
+                  let candidate = buildCandidate(
+                    original: fullVariant.token,
+                    variant: fullVariant,
+                    mappedWord: mapped,
+                    localeTarget: target,
+                    settings: settings,
+                    originalLooksValid: false
+                  ),
+                  candidate.targetEvidence >= .dictionaryAfterNormalization else {
+                continue
+            }
+            candidates.append(candidate)
+        }
+
+        let sorted = collapseIdenticalReplacementCandidates(
+            candidates,
+            installedInputSources: targetInputSources
+        ).sorted(by: isPreferred)
+        guard let best = sorted.first?.candidate else {
+            return nil
+        }
+        guard best.score >= settings.ambiguousConfidenceThreshold else {
+            return .rejected
+        }
+        if let second = sorted.dropFirst().first?.candidate,
+           best.score - second.score < 0.15 {
+            return .ambiguous(candidate: best)
+        }
+        appLog("DIAG: Accept full apostrophe token raw='\(parsedToken.raw)' candidate='\(best.word)' score=\(best.score)", level: .debug)
+        return .accepted(candidate: best)
     }
 
     private func mappedWord(

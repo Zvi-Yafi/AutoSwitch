@@ -1,4 +1,34 @@
-# Verification — 1.1.1 (build 10)
+# Verification — 1.1.2 (build 11)
+
+Source review and targeted validation on 2026-10-25:
+
+- The language engine matches the tested source with SHA-256
+  `118e77f200f8faf08eb3141f6c17e91783678453f1c482c5153b21e1350a0299`.
+  Fourteen isolated policy scenarios passed, including complete geresh translation,
+  fallback, ignored words, target restrictions, confidence and ambiguity handling.
+- Permission onboarding matches the tested source with SHA-256
+  `c3d4d3f8197de0700bcca6f798e8352f8daee2b6c1514c3595aba8ce603c2c64`.
+  Ten isolated control-flow scenarios passed, and the full Debug build succeeded.
+- A locally signed Debug app was launched from Applications on the maintainer's
+  Mac after resetting only its Input Monitoring and Accessibility approvals.
+  The Input Monitoring list was observed empty before launch and contained
+  AutoSwitch afterward, without the test operator adding it using the plus button.
+  Both permissions were subsequently observed enabled. This was an existing user
+  account after permission reset, not a never-used Mac.
+- Only version/build metadata and release documentation changed after these
+  tests. Production Swift sources and application resources match the tested copy.
+- The isolated harnesses use in-memory services. They do not establish end-to-end
+  text correction or macOS privacy-database behavior by themselves.
+- The full XCTest suite was not rerun for 1.1.2. The updated dictionary-dependent
+  geresh XCTest was not executed. Intel runtime, fresh-machine installation,
+  downloaded-DMG installation and broad secure-field/focus regression coverage
+  remain outside this validation scope. See TESTING.md.
+
+Artifact signing, notarization and checksums must be verified for the final
+build from the release commit; the GitHub release notes record those results.
+Earlier release evidence below applies to 1.1.1 and is not a new test run.
+
+## Previous release — 1.1.1 (build 10)
 
 Verified on 2026-10-15 for direct distribution from GitHub.
 

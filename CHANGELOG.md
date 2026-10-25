@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.2 — 2026-10-25
+
+- Prefer a complete dictionary-backed translation of a token containing an edge
+  apostrophe or Hebrew geresh before validating the source without that mark.
+  For example, `׳יט` can now become `why` immediately. Confidence thresholds,
+  ignored words and ambiguity between different complete translations still apply.
+- Request Input Monitoring access whenever permission is missing, including the
+  denied state. Coalesce overlapping requests and open privacy settings after the
+  request returns, replacing the fixed-delay fallback. Cancel pending settings
+  navigation when onboarding closes.
+- Add isolated regression coverage for both changes and update the existing
+  geresh translation expectation.
+
 ## 1.1.1 — 2026-10-15
 
 - Request Input Monitoring registration when permission onboarding appears, so

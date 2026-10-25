@@ -249,7 +249,7 @@ final class LanguageDecisionEngineTests: XCTestCase {
         }
     }
 
-    func testHebrewWordWithGereshDefersAsAmbiguous() throws {
+    func testFullGereshTranslationTakesPriorityOverValidHebrewCore() throws {
         let englishLayoutID = InputSourceController.shared.getEnglishLayoutID()
         guard DictionaryManager.shared.isEnglishWord("how") else {
             throw XCTSkip("English dictionary is not available on this machine")
@@ -270,15 +270,15 @@ final class LanguageDecisionEngineTests: XCTestCase {
 
         let decision = LanguageDecisionEngine.shared.evaluate(snapshot: snapshot)
         switch decision {
-        case .ambiguous(let candidate):
+        case .accepted(let candidate):
             XCTAssertEqual(candidate.word, "how")
             XCTAssertEqual(candidate.target.inputSourceID, englishLayoutID)
-        case .accepted(let candidate):
-            XCTFail("Word with valid Hebrew core must not switch immediately, got accepted: \(candidate.word)")
+        case .ambiguous(let candidate):
+            XCTFail("Full geresh translation must take priority over stripped Hebrew core, got ambiguous: \(candidate.word)")
         case .rejected:
-            XCTFail("Expected ambiguous deferral for ים׳ but got rejected")
+            XCTFail("Expected accepted full translation for ים׳ but got rejected")
         case .switchOnly:
-            XCTFail("Expected ambiguous deferral for ים׳ but got switchOnly")
+            XCTFail("Expected accepted full translation for ים׳ but got switchOnly")
         }
     }
 

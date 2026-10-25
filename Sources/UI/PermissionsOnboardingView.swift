@@ -6,7 +6,8 @@ struct PermissionsOnboardingView: View {
     @State private var accessibilityGranted: Bool = false
     @State private var inputMonitoringGranted: Bool = false
     @State private var showingAccessibilityPrompt: Bool = false
-    @State private var awaitingInputMonitoringRegistration: Bool = false
+    @State private var inputMonitoringRequestInFlight: Bool = false
+    @State private var openInputMonitoringSettingsAfterRequest: Bool = false
     @State private var checkTimer: Timer?
     
     var onComplete: () -> Void
@@ -68,6 +69,7 @@ struct PermissionsOnboardingView: View {
             startCheckingPermissions()
         }
         .onDisappear {
+            openInputMonitoringSettingsAfterRequest = false
             stopCheckingPermissions()
         }
     }
@@ -78,13 +80,6 @@ struct PermissionsOnboardingView: View {
         
         let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
         inputMonitoringGranted = (imAccess == kIOHIDAccessTypeGranted)
-
-        if awaitingInputMonitoringRegistration && imAccess != kIOHIDAccessTypeUnknown {
-            awaitingInputMonitoringRegistration = false
-            if imAccess == kIOHIDAccessTypeDenied {
-                openInputMonitoringSettings()
-            }
-        }
     }
     
     private func startCheckingPermissions() {
@@ -109,11 +104,32 @@ struct PermissionsOnboardingView: View {
         }
     }
     
-    private func requestInputMonitoringRegistrationIfNeeded() {
-        guard IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) == kIOHIDAccessTypeUnknown else { return }
+    private func requestInputMonitoringRegistrationIfNeeded(openSettingsAfterRequest: Bool = false) {
+        guard IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) != kIOHIDAccessTypeGranted else {
+            checkPermissions()
+            return
+        }
 
+        if openSettingsAfterRequest {
+            openInputMonitoringSettingsAfterRequest = true
+        }
+        guard !inputMonitoringRequestInFlight else { return }
+        inputMonitoringRequestInFlight = true
+
+        // Denied access does not tell us whether the app is listed in Settings.
+        // Submit the request before directing the user there, even when denied.
         DispatchQueue.global(qos: .userInitiated).async {
             _ = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
+            DispatchQueue.main.async {
+                inputMonitoringRequestInFlight = false
+                checkPermissions()
+
+                let shouldOpenSettings = openInputMonitoringSettingsAfterRequest
+                openInputMonitoringSettingsAfterRequest = false
+                if shouldOpenSettings && !inputMonitoringGranted {
+                    openInputMonitoringSettings()
+                }
+            }
         }
     }
 
@@ -125,27 +141,7 @@ struct PermissionsOnboardingView: View {
     }
 
     private func requestInputMonitoringPermission() {
-        let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-
-        if imAccess == kIOHIDAccessTypeGranted {
-            checkPermissions()
-            return
-        }
-
-        if imAccess == kIOHIDAccessTypeDenied {
-            openInputMonitoringSettings()
-            return
-        }
-
-        guard !awaitingInputMonitoringRegistration else { return }
-        awaitingInputMonitoringRegistration = true
-        requestInputMonitoringRegistrationIfNeeded()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            guard awaitingInputMonitoringRegistration else { return }
-            awaitingInputMonitoringRegistration = false
-            openInputMonitoringSettings()
-        }
+        requestInputMonitoringRegistrationIfNeeded(openSettingsAfterRequest: true)
     }
 }
 

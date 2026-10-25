@@ -1,4 +1,8 @@
-# Testing 1.1.1
+# Testing 1.1.2
+
+For the targeted 1.1.2 results and remaining coverage, see VERIFICATION.md.
+The isolated regression scripts are `scripts/run_geresh_policy_regression.sh`
+and `scripts/run_permissions_onboarding_regression.py`.
 
 The maintainer tested the preceding beta locally and reported that installation and
 application behavior worked. The distribution changes in 1.1.0 add Developer ID

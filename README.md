@@ -7,8 +7,9 @@ It runs in the menu bar and processes corrections locally using macOS spelling A
 ## Download
 
 Get the complete app from this repository's [latest release](https://github.com/Zvi-Yafi/AutoSwitch/releases/latest).
-**1.1.1 is signed with Developer ID and notarized by Apple for direct download.**
-This update fixes Input Monitoring permission setup on first launch.
+Public distribution downloads use Developer ID signing and Apple notarization.
+Version 1.1.2 improves complete-word correction with a Hebrew geresh and
+Input Monitoring permission registration. See the release page for artifact status.
 It includes both Apple Silicon and Intel executables and requires macOS 13 or later.
 Intel execution and installation on a separate Mac still need manual testing.
 

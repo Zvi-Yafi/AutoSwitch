@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.4 — 2026-10-25
+
+- Start keyboard correction automatically after Accessibility access is granted,
+  even before completing or after closing the onboarding guide. Retry monitor
+  creation after transient failures without requiring an app restart.
+- Prevent overlapping starts from creating duplicate keyboard event taps. Cancel
+  pending starts safely and clean up each monitor session when stopped.
+- Add regression coverage for concurrent starts, cancellation, retries and
+  permission transitions. Accessibility remains the only requested permission.
+
 ## 1.1.3 — 2026-10-25
 
 - Require only Accessibility permission for keyboard monitoring and correction;

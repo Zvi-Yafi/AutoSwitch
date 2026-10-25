@@ -1,25 +1,25 @@
-# Testing 1.1.2
+# Testing 1.1.4
 
-For the targeted 1.1.2 results and remaining coverage, see VERIFICATION.md.
-The isolated regression scripts are `scripts/run_geresh_policy_regression.sh`
-and `scripts/run_permissions_onboarding_regression.py`.
+See VERIFICATION.md for the tested snapshot, observed results and limitations.
+Focused regressions are `scripts/run_monitor_startup_regression.py`,
+`scripts/run_permissions_onboarding_regression.py` and
+`scripts/run_geresh_policy_regression.sh`.
 
-The maintainer tested the preceding beta locally and reported that installation and
-application behavior worked. The distribution changes in 1.1.0 add Developer ID
-signing and notarization. The checklist below remains useful for wider testing;
-it does not mean every scenario has been verified.
+## Clean install and permission transitions
 
-## Clean install
-
-- Quit the previous app before installing the new one.
-- Install from the DMG into Applications, then launch from there.
-- Confirm the menu bar item, onboarding, Accessibility and Input Monitoring permissions.
-- The new neutral bundle ID has separate preferences/permission grants.
-- Revoke and restore each permission and verify status/recovery after relaunch.
-- On a Mac where AutoSwitch has not requested Input Monitoring, confirm onboarding
-  triggers registration and remains responsive while the system prompt is open.
-- Try allowing and denying the system prompt; confirm the permission button updates
-  when granted and opens Input Monitoring settings when denied or still pending.
+- Quit the previous app, install from the DMG into Applications and launch it.
+- Confirm the menu bar item and the single Accessibility permission guide.
+- Grant Accessibility while the guide is open. Without clicking Start Using or
+  restarting, type the hello test below in TextEdit and confirm correction.
+- Repeat with the guide closed before granting permission. Confirm correction
+  starts after the grant without reopening the guide.
+- Complete the guide and confirm the settings window contains its controls.
+- Disable correction and verify it stays stopped; enable it and verify recovery.
+- Revoke and regrant Accessibility while the app is running and verify recovery.
+- Inspect operational logs: repeated settings changes and startup requests must
+  not create duplicate active event taps. Input Monitoring is not a second gate.
+- Repeat a browser-download installation on a separate Mac or clean VM. A local
+  permission/preferences reset is useful but is not equivalent to that test.
 
 ## Typing and overrides
 
@@ -49,5 +49,5 @@ it does not mean every scenario has been verified.
 - Check installation from a browser download on a different Mac.
 - Check logs contain no typed text in this production build.
 - Verify the downloaded app with `codesign --verify --deep --strict` and
-  `spctl --assess --type execute --verbose`. Version 1.1.0 uses Developer ID signing
+  `spctl --assess --type execute --verbose`. Production releases use Developer ID signing
   and Apple notarization; the earlier beta used ad-hoc signing.

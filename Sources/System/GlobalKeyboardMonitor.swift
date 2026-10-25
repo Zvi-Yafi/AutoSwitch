@@ -5,23 +5,33 @@ import Cocoa
 class GlobalKeyboardMonitor {
     static let shared = GlobalKeyboardMonitor()
     
-    fileprivate var eventTap: CFMachPort?
-    private var runLoopSource: CFRunLoopSource?
+    // Reserve a session before starting its thread. An active-only guard leaves
+    // a window in which multiple permission/settings notifications create taps.
+    private final class Session {
+        var tap: CFMachPort?
+        var source: CFRunLoopSource?
+        var runLoop: CFRunLoop?
+        var timer: Timer?
+    }
+
     private let stateQueue = DispatchQueue(label: "com.autoswitch.monitor.state", qos: .userInitiated)
-    private var isMonitoring = false
-    fileprivate var eventsReceivedCount: Int = 0
+    private var session: Session?
+    private var eventsReceivedCount = 0
 
     private init() {}
-    
-    func startMonitoring() {
-        guard !isMonitoringActive() else { return }
 
-        Thread.detachNewThread { [weak self] in
-            guard let self = self else { return }
-            
+    func startMonitoring() {
+        let candidate = Session()
+        let reserved = stateQueue.sync { () -> Bool in
+            guard session == nil else { return false }
+            session = candidate
+            return true
+        }
+        guard reserved else { return }
+
+        Thread.detachNewThread { [self] in
             let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
             let userInfo = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-            
             guard let tap = CGEvent.tapCreate(
                 tap: .cgSessionEventTap,
                 place: .headInsertEventTap,
@@ -30,41 +40,82 @@ class GlobalKeyboardMonitor {
                 callback: customEventTapCallback,
                 userInfo: userInfo
             ) else {
-                appLog("CRITICAL: Failed to create CGEventTap (Session).")
-                self.setMonitoring(false)
+                stateQueue.sync {
+                    if session === candidate { session = nil }
+                }
+                appLog("MONITOR: Tap creation failed; permission supervisor will retry.")
                 return
             }
-            
-            self.setMonitoring(true)
-            self.eventTap = tap
-            self.runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
-            
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), self.runLoopSource, .commonModes)
-            CGEvent.tapEnable(tap: tap, enable: true)
-            
-            appLog("PERMISSIONS: Tap created successfully. Waiting for first keystroke to confirm keyboard monitoring is active...")
-            self.setupResilienceTimer()
-            
-            CFRunLoopRun()
-        }
-    }
-    
-    func stopMonitoring() {
-        guard isMonitoringActive() else { return }
-        if let tap = eventTap {
+
+            // A newly created tap must not process keys until its session is
+            // published. stopMonitoring may have cancelled it during creation.
             CGEvent.tapEnable(tap: tap, enable: false)
-            CFMachPortInvalidate(tap)
+            guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0) else {
+                CFMachPortInvalidate(tap)
+                stateQueue.sync {
+                    if session === candidate { session = nil }
+                }
+                appLog("MONITOR: Run loop source creation failed; will retry.")
+                return
+            }
+            let runLoop = CFRunLoopGetCurrent()!
+            let timer = Timer(timeInterval: 5.0, repeats: true) { [weak self] _ in
+                self?.reenableTapIfNeeded()
+            }
+            let installed = stateQueue.sync { () -> Bool in
+                guard session === candidate else { return false }
+                candidate.tap = tap
+                candidate.source = source
+                candidate.runLoop = runLoop
+                candidate.timer = timer
+                eventsReceivedCount = 0
+                CFRunLoopAddSource(runLoop, source, .commonModes)
+                RunLoop.current.add(timer, forMode: .common)
+                CGEvent.tapEnable(tap: tap, enable: true)
+                return true
+            }
+            guard installed else {
+                timer.invalidate()
+                CFRunLoopSourceInvalidate(source)
+                CFMachPortInvalidate(tap)
+                return
+            }
+            appLog("PERMISSIONS: Tap created successfully. Waiting for first keystroke to confirm keyboard monitoring is active...")
+            CFRunLoopRun()
+
+            // Cleanup belongs to this session, never to a newer start request.
+            stateQueue.sync {
+                timer.invalidate()
+                CFRunLoopSourceInvalidate(source)
+                CFMachPortInvalidate(tap)
+                if session === candidate { session = nil }
+            }
         }
-        if let source = runLoopSource {
-            CFRunLoopSourceInvalidate(source)
-        }
-        eventTap = nil
-        runLoopSource = nil
-        setMonitoring(false)
     }
-    
+
+    func stopMonitoring() {
+        stateQueue.sync {
+            guard let current = session else { return }
+            session = nil
+            if let tap = current.tap {
+                CGEvent.tapEnable(tap: tap, enable: false)
+                CFMachPortInvalidate(tap)
+            }
+            if let runLoop = current.runLoop {
+                // Queue the stop on the owning loop: it also works if stop is
+                // requested just before the worker enters CFRunLoopRun().
+                CFRunLoopPerformBlock(runLoop, CFRunLoopMode.commonModes.rawValue) {
+                    current.timer?.invalidate()
+                    if let source = current.source { CFRunLoopSourceInvalidate(source) }
+                    CFRunLoopStop(runLoop)
+                }
+                CFRunLoopWakeUp(runLoop)
+            }
+        }
+    }
+
     func isMonitoringActive() -> Bool {
-        stateQueue.sync { isMonitoring }
+        stateQueue.sync { session?.tap != nil }
     }
 
     func tapEventsReceivedCount() -> Int {
@@ -72,26 +123,17 @@ class GlobalKeyboardMonitor {
     }
 
     func isTapCurrentlyEnabled() -> Bool {
-        guard let tap = eventTap else { return false }
-        return CGEvent.tapIsEnabled(tap: tap)
-    }
-    
-    private func setupResilienceTimer() {
-        // Run on main queue just to monitor the tap's alive state
-        DispatchQueue.main.async {
-            Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
-                guard let self = self, self.isMonitoringActive(), let tap = self.eventTap else { return }
-                if !CGEvent.tapIsEnabled(tap: tap) {
-                    appLog("Tap was disabled. Attempting re-enable...")
-                    CGEvent.tapEnable(tap: tap, enable: true)
-                }
-            }
+        stateQueue.sync {
+            guard let tap = session?.tap else { return false }
+            return CGEvent.tapIsEnabled(tap: tap)
         }
     }
-    
-    private func setMonitoring(_ value: Bool) {
+
+    fileprivate func reenableTapIfNeeded() {
         stateQueue.sync {
-            isMonitoring = value
+            guard let tap = session?.tap, !CGEvent.tapIsEnabled(tap: tap) else { return }
+            appLog("MONITOR: Tap was disabled; attempting re-enable.")
+            CGEvent.tapEnable(tap: tap, enable: true)
         }
     }
 
@@ -107,10 +149,7 @@ private func customEventTapCallback(proxy: CGEventTapProxy, type: CGEventType, e
         // Just let the resilience timer fix it or fix it explicitly here
         if let tapRef = refcon {
             let monitor = Unmanaged<GlobalKeyboardMonitor>.fromOpaque(tapRef).takeUnretainedValue()
-            if let tap = monitor.eventTap {
-                CGEvent.tapEnable(tap: tap, enable: true)
-                appLog("Attempted to re-enable tap")
-            }
+            monitor.reenableTapIfNeeded()
         }
         return Unmanaged.passUnretained(event)
     }

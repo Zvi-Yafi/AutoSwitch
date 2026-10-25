@@ -24,6 +24,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var statusItem: NSStatusItem?
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var permissionTimer: Timer?
+    private var heartbeatTimer: Timer?
+    private var lastAccessibilityGranted: Bool?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -41,15 +44,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             LayoutMapper.shared.warmCache(for: layout.id)
         }
 
+        // Monitoring follows permission state even if the guide is left open
+        // or closed without pressing Continue on a first installation.
+        NotificationCenter.default.addObserver(self, selector: #selector(settingsDidChange(_:)), name: .appSettingsDidChange, object: nil)
+        refreshMonitoring()
+        let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.refreshMonitoring()
+        }
+        permissionTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+        startHeartbeat()
+
         if shouldShowOnboarding() {
             showOnboarding()
         } else {
-            logPermissionsStatus(prompt: true)
-            startHeartbeat()
             openSettings()
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(settingsDidChange(_:)), name: .appSettingsDidChange, object: nil)
         setupMenu()
     }
 
@@ -100,42 +111,53 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         onboardingWindow?.close()
         onboardingWindow = nil
         
-        logPermissionsStatus(prompt: false)
-        startHeartbeat()
+        refreshMonitoring()
         openSettings()
     }
 
-    private func logPermissionsStatus(prompt: Bool) {
-        let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt]
-        let accessEnabled = AXIsProcessTrustedWithOptions(axOptions)
-
-        appLog("PERMISSIONS: Accessibility=\(accessEnabled ? "GRANTED ✓" : "DENIED ✗")")
-
+    private func refreshMonitoring() {
+        let accessEnabled = AXIsProcessTrusted()
+        let permissionChanged = lastAccessibilityGranted != accessEnabled
+        if permissionChanged {
+            lastAccessibilityGranted = accessEnabled
+            appLog("PERMISSIONS: Accessibility=\(accessEnabled ? "GRANTED ✓" : "DENIED ✗")")
+            // Restore the current app's state after a permission grant without
+            // requiring the user to switch apps or restart AutoSwitch.
+            AutoSwitchStateMachine.shared.appActivated(
+                isAuthorized: accessEnabled && SettingsStore.shared.getSettings().enabled
+                    && AppControlManager.shared.currentAppSnapshot().isAuthorized
+            )
+        }
         if accessEnabled && SettingsStore.shared.getSettings().enabled {
-            if !GlobalKeyboardMonitor.shared.isMonitoringActive() {
-                GlobalKeyboardMonitor.shared.startMonitoring()
-            }
-        } else if !accessEnabled {
-            appLog("CRITICAL: Accessibility not granted — corrections will not work until granted.")
+            // Idempotent while starting as well as while running. Retry a failed
+            // creation on the next tick, including during onboarding.
+            GlobalKeyboardMonitor.shared.startMonitoring()
+        } else {
+            GlobalKeyboardMonitor.shared.stopMonitoring()
         }
     }
 
     @objc private func settingsDidChange(_ notification: Notification) {
-        guard let settings = notification.userInfo?["settings"] as? AppSettings else {
-            return
-        }
-
-        if settings.enabled {
-            logPermissionsStatus(prompt: false)
+        if Thread.isMainThread {
+            refreshMonitoring()
         } else {
-            appLog("SETTINGS: AutoSwitch disabled — stopping monitor.")
-            GlobalKeyboardMonitor.shared.stopMonitoring()
-            AutoSwitchStateMachine.shared.appActivated(isAuthorized: false)
+            DispatchQueue.main.async { [weak self] in self?.refreshMonitoring() }
         }
     }
-    
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        refreshMonitoring()
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        permissionTimer?.invalidate()
+        heartbeatTimer?.invalidate()
+        GlobalKeyboardMonitor.shared.stopMonitoring()
+    }
+
     private func startHeartbeat() {
-        Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
+        guard heartbeatTimer == nil else { return }
+        heartbeatTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
             let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
             let accessibility = AXIsProcessTrustedWithOptions(axOptions)
             let tapActive = GlobalKeyboardMonitor.shared.isMonitoringActive()
@@ -146,10 +168,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
             appLog("HEARTBEAT: Accessibility=\(accessibility) | TapActive=\(tapActive) | TapEnabled=\(tapEnabled) | EventsReceived=\(eventsReceived) | App=\(activeApp) | State=\(state)")
 
-            if accessibility && SettingsStore.shared.getSettings().enabled && !tapActive {
-                appLog("HEARTBEAT: Monitor not active — restarting now.")
-                GlobalKeyboardMonitor.shared.startMonitoring()
-            }
         }
     }
     

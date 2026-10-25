@@ -1,7 +1,6 @@
 import SwiftUI
 import Carbon
 import ApplicationServices
-import IOKit.hid
 
 private struct SectionLabel: View {
     let title: String
@@ -58,7 +57,6 @@ struct SettingsView: View {
     @State private var importedJSON: String = ""
     @State private var exportJSON: String = ""
     @State private var accessibilityPermissionGranted: Bool = true
-    @State private var inputMonitoringPermissionGranted: Bool = true
 
     var body: some View {
         TabView {
@@ -248,7 +246,7 @@ struct SettingsView: View {
     }
 
     private var statusCard: some View {
-        let hasRequiredPermissions = accessibilityPermissionGranted && inputMonitoringPermissionGranted
+        let hasRequiredPermissions = accessibilityPermissionGranted
         let statusText = statusCardText
         let statusColor: Color = hasRequiredPermissions ? (isEnabled ? Color.green : Color.orange) : Color.red
 
@@ -294,16 +292,10 @@ struct SettingsView: View {
     }
 
     private var statusCardText: String {
-        switch (accessibilityPermissionGranted, inputMonitoringPermissionGranted) {
-        case (true, true):
-            return isEnabled ? AppStrings.statusEnabled : AppStrings.statusDisabled
-        case (false, true):
+        guard accessibilityPermissionGranted else {
             return AppStrings.statusMissingAccessibilityPermission
-        case (true, false):
-            return AppStrings.statusMissingInputMonitoringPermission
-        case (false, false):
-            return AppStrings.statusMissingRequiredPermissions
         }
+        return isEnabled ? AppStrings.statusEnabled : AppStrings.statusDisabled
     }
 
     @ViewBuilder
@@ -586,7 +578,6 @@ struct SettingsView: View {
     private func checkSystemPermissions() {
         let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
         accessibilityPermissionGranted = AXIsProcessTrustedWithOptions(axOptions)
-        inputMonitoringPermissionGranted = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) == kIOHIDAccessTypeGranted
     }
 
     private func effectiveEnabledTargetInputSourceIDs(settings: AppSettings, inputSources: [InstalledInputSource]) -> Set<String> {

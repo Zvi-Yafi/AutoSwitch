@@ -13,9 +13,9 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.2</string>
+	<string>1.1.3</string>
 	<key>CFBundleVersion</key>
-	<string>11</string>
+	<string>12</string>
 	<key>CFBundleExecutable</key>
 	<string>AutoSwitch</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -31,8 +31,6 @@
 	<true/>
 	<key>NSAccessibilityUsageDescription</key>
 	<string>AutoSwitch needs accessibility permissions to detect when you accidentally type in the wrong keyboard layout and correct it for you.</string>
-	<key>NSInputMonitoringUsageDescription</key>
-	<string>AutoSwitch needs input monitoring to detect keystrokes and correct layout mistakes.</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 </dict>

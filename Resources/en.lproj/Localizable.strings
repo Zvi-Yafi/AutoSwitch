@@ -27,7 +27,7 @@
 "settings.refreshExport" = "Refresh Export";
 "settings.importSettingsJSON" = "Import Settings JSON";
 "settings.importSettings" = "Import Settings";
-"settings.requiredEntitlements" = "Required Entitlements: Accessibility and Input Monitoring";
+"settings.requiredEntitlements" = "Required Permission: Accessibility";
 "settings.addBundleId" = "Add Bundle ID";
 "settings.addIgnoredWord" = "Add ignored word";
 "settings.addAbbreviationException" = "Add abbreviation exception";
@@ -36,7 +36,6 @@
 "menu.settings" = "Settings...";
 "menu.quit" = "Quit";
 "permissions.accessibility" = "AutoSwitch needs accessibility permissions to detect when you accidentally type in the wrong keyboard layout and correct it for you.";
-"permissions.inputMonitoring" = "AutoSwitch needs input monitoring to detect keystrokes and correct layout mistakes.";
 "supportTier.fullSupport" = "Full Support";
 "supportTier.bestEffort" = "Best Effort";
 "supportTier.unsupported" = "Unsupported";
@@ -50,7 +49,6 @@
 "settings.status.enabled" = "Active";
 "settings.status.disabled" = "Inactive";
 "settings.status.missingAccessibilityPermission" = "Missing Accessibility permission";
-"settings.status.missingInputMonitoringPermission" = "Missing Input Monitoring permission";
 "settings.status.missingRequiredPermissions" = "Missing required permissions";
 "settings.section.correction" = "Correction";
 "settings.section.shortcuts" = "Shortcuts";
@@ -69,11 +67,9 @@
 "settings.addBundleId.hint" = "e.g. com.apple.Safari";
 "settings.exportImport.disclosure" = "Export / Import Settings";
 "onboarding.title" = "Welcome to AutoSwitch";
-"onboarding.description" = "AutoSwitch needs two system permissions to automatically correct your keyboard layout mistakes. Please grant both permissions below.";
+"onboarding.description" = "AutoSwitch needs Accessibility permission to detect keyboard layout mistakes and correct them automatically. Please grant access below.";
 "onboarding.accessibility.title" = "Accessibility Permission";
 "onboarding.accessibility.description" = "Allows AutoSwitch to detect when you type in the wrong keyboard layout and correct it automatically.";
-"onboarding.inputMonitoring.title" = "Input Monitoring Permission";
-"onboarding.inputMonitoring.description" = "Allows AutoSwitch to monitor keystrokes and detect layout mistakes in real-time.";
 "onboarding.requestPermission" = "Open System Settings";
 "onboarding.continue" = "Start Using AutoSwitch";
-"onboarding.waiting" = "Waiting for permissions to be granted...";
+"onboarding.waiting" = "Waiting for Accessibility permission...";

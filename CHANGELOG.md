@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3 — 2026-10-25
+
+- Require only Accessibility permission for keyboard monitoring and correction;
+  remove the separate Input Monitoring onboarding step, requests and status gate.
+- Open populated settings after onboarding and on later launches. Route Settings
+  and Command-comma to the settings window and restore it when reopening the app.
+- Update English and Hebrew permission guidance and focused onboarding coverage.
+
 ## 1.1.2 — 2026-10-25
 
 - Prefer a complete dictionary-backed translation of a token containing an edge

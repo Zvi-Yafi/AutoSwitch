@@ -8,8 +8,8 @@ It runs in the menu bar and processes corrections locally using macOS spelling A
 
 Get the complete app from this repository's [latest release](https://github.com/Zvi-Yafi/AutoSwitch/releases/latest).
 Public distribution downloads use Developer ID signing and Apple notarization.
-Version 1.1.2 improves complete-word correction with a Hebrew geresh and
-Input Monitoring permission registration. See the release page for artifact status.
+Version 1.1.3 requires only Accessibility permission and fixes settings-window
+opening. See the release page for artifact status.
 It includes both Apple Silicon and Intel executables and requires macOS 13 or later.
 Intel execution and installation on a separate Mac still need manual testing.
 
@@ -17,8 +17,8 @@ Intel execution and installation on a separate Mac still need manual testing.
 
 1. Quit any older AutoSwitch instance using its menu bar menu.
 2. Open the DMG and drag AutoSwitch to Applications.
-3. Launch it from Applications and complete permission onboarding: Accessibility and
-   Input Monitoring are required for correction across apps.
+3. Launch it from Applications and complete permission onboarding: Accessibility
+   is the only permission required for correction across apps.
 4. Enable the keyboard layouts you use in macOS settings, then test in TextEdit.
 5. Use the AutoSwitch menu bar icon to open settings or disable correction.
 

@@ -1,6 +1,5 @@
 import SwiftUI
 import AppKit
-import IOKit.hid
 
 @main
 struct AutoSwitchApp: App {
@@ -8,7 +7,15 @@ struct AutoSwitchApp: App {
 
     var body: some Scene {
         Settings {
-            EmptyView()
+            SettingsView()
+        }
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button(AppStrings.menuSettings) {
+                    appDelegate.openSettings()
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
         }
     }
 }
@@ -39,29 +46,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         } else {
             logPermissionsStatus(prompt: true)
             startHeartbeat()
+            openSettings()
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(settingsDidChange(_:)), name: .appSettingsDidChange, object: nil)
         setupMenu()
     }
 
-    private func inputMonitoringStatus() -> String {
-        let access = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-        switch access {
-        case kIOHIDAccessTypeGranted: return "GRANTED ✓"
-        case kIOHIDAccessTypeDenied:  return "DENIED ✗ — go to System Settings → Privacy & Security → Input Monitoring → enable AutoSwitch"
-        default:                      return "NOT_DETERMINED — requesting prompt now"
-        }
-    }
-
     private func shouldShowOnboarding() -> Bool {
         let settings = SettingsStore.shared.getSettings()
         let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
         let accessibilityGranted = AXIsProcessTrustedWithOptions(axOptions)
-        let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-        let inputMonitoringGranted = (imAccess == kIOHIDAccessTypeGranted)
 
-        if !accessibilityGranted || !inputMonitoringGranted {
+        if !accessibilityGranted {
             return true
         }
 
@@ -69,10 +66,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     
     private func showOnboarding() {
+        if let window = onboardingWindow {
+            bringToFront(window)
+            return
+        }
         appLog("ONBOARDING: Showing permissions onboarding screen")
         
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 500),
+            contentRect: NSRect(x: 0, y: 0, width: 600, height: 420),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -86,8 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.delegate = self
         onboardingWindow = window
         
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        bringToFront(window)
     }
     
     private func completeOnboarding() {
@@ -102,20 +102,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         
         logPermissionsStatus(prompt: false)
         startHeartbeat()
+        openSettings()
     }
 
     private func logPermissionsStatus(prompt: Bool) {
         let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt]
         let accessEnabled = AXIsProcessTrustedWithOptions(axOptions)
 
-        let imStatus = inputMonitoringStatus()
-        let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-
-        appLog("PERMISSIONS: Accessibility=\(accessEnabled ? "GRANTED ✓" : "DENIED ✗") | InputMonitoring=\(imStatus)")
-
-        if imAccess != kIOHIDAccessTypeGranted {
-            IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
-        }
+        appLog("PERMISSIONS: Accessibility=\(accessEnabled ? "GRANTED ✓" : "DENIED ✗")")
 
         if accessEnabled && SettingsStore.shared.getSettings().enabled {
             if !GlobalKeyboardMonitor.shared.isMonitoringActive() {
@@ -144,28 +138,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
             let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
             let accessibility = AXIsProcessTrustedWithOptions(axOptions)
-            let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-            let inputMonitoring: String
-            switch imAccess {
-            case kIOHIDAccessTypeGranted: inputMonitoring = "GRANTED"
-            case kIOHIDAccessTypeDenied:  inputMonitoring = "DENIED"
-            default:                      inputMonitoring = "NOT_DETERMINED"
-            }
             let tapActive = GlobalKeyboardMonitor.shared.isMonitoringActive()
             let tapEnabled = GlobalKeyboardMonitor.shared.isTapCurrentlyEnabled()
             let eventsReceived = GlobalKeyboardMonitor.shared.tapEventsReceivedCount()
             let state = AutoSwitchStateMachine.shared.currentState
             let activeApp = AppControlManager.shared.activeAppBundleId ?? "None"
 
-            appLog("HEARTBEAT: Accessibility=\(accessibility) | InputMonitoring=\(inputMonitoring) | TapActive=\(tapActive) | TapEnabled=\(tapEnabled) | EventsReceived=\(eventsReceived) | App=\(activeApp) | State=\(state)")
+            appLog("HEARTBEAT: Accessibility=\(accessibility) | TapActive=\(tapActive) | TapEnabled=\(tapEnabled) | EventsReceived=\(eventsReceived) | App=\(activeApp) | State=\(state)")
 
             if accessibility && SettingsStore.shared.getSettings().enabled && !tapActive {
                 appLog("HEARTBEAT: Monitor not active — restarting now.")
                 GlobalKeyboardMonitor.shared.startMonitoring()
-            }
-
-            if tapActive && imAccess == kIOHIDAccessTypeDenied {
-                appLog("HEARTBEAT: WARNING — Tap is running but Input Monitoring is DENIED. Go to System Settings → Privacy & Security → Input Monitoring → enable AutoSwitch, then restart.")
             }
         }
     }
@@ -192,7 +175,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func openSettings() {
         if settingsWindow == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 580, height: 520),
+                contentRect: NSRect(x: 0, y: 0, width: 560, height: 540),
                 styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered,
                 defer: false
@@ -204,8 +187,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             window.delegate = self
             settingsWindow = window
         }
-        settingsWindow?.makeKeyAndOrderFront(nil)
+        if let window = settingsWindow {
+            bringToFront(window)
+        }
+    }
+
+    private func bringToFront(_ window: NSWindow) {
+        if window.isMiniaturized {
+            window.deminiaturize(nil)
+        }
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if shouldShowOnboarding() {
+            showOnboarding()
+        } else {
+            openSettings()
+        }
+        // Window selection is handled above instead of the default scene behavior.
+        return false
     }
 
     func windowWillClose(_ notification: Notification) {

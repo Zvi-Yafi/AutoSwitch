@@ -1,13 +1,9 @@
 import SwiftUI
 import AppKit
-import IOKit.hid
 
 struct PermissionsOnboardingView: View {
     @State private var accessibilityGranted: Bool = false
-    @State private var inputMonitoringGranted: Bool = false
     @State private var showingAccessibilityPrompt: Bool = false
-    @State private var inputMonitoringRequestInFlight: Bool = false
-    @State private var openInputMonitoringSettingsAfterRequest: Bool = false
     @State private var checkTimer: Timer?
     
     var onComplete: () -> Void
@@ -33,18 +29,10 @@ struct PermissionsOnboardingView: View {
                     stepNumber: 1,
                     onRequest: requestAccessibilityPermission
                 )
-                
-                PermissionRow(
-                    title: AppStrings.onboardingInputMonitoringTitle,
-                    description: AppStrings.onboardingInputMonitoringDesc,
-                    isGranted: inputMonitoringGranted,
-                    stepNumber: 2,
-                    onRequest: requestInputMonitoringPermission
-                )
             }
             .padding(.horizontal, 32)
             
-            if accessibilityGranted && inputMonitoringGranted {
+            if accessibilityGranted {
                 Button(action: onComplete) {
                     Text(AppStrings.onboardingContinue)
                         .frame(maxWidth: .infinity)
@@ -62,14 +50,12 @@ struct PermissionsOnboardingView: View {
                     .padding(.bottom, 32)
             }
         }
-        .frame(width: 600, height: 500)
+        .frame(width: 600, height: 420)
         .onAppear {
             checkPermissions()
-            requestInputMonitoringRegistrationIfNeeded()
             startCheckingPermissions()
         }
         .onDisappear {
-            openInputMonitoringSettingsAfterRequest = false
             stopCheckingPermissions()
         }
     }
@@ -77,9 +63,6 @@ struct PermissionsOnboardingView: View {
     private func checkPermissions() {
         let axOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
         accessibilityGranted = AXIsProcessTrustedWithOptions(axOptions)
-        
-        let imAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-        inputMonitoringGranted = (imAccess == kIOHIDAccessTypeGranted)
     }
     
     private func startCheckingPermissions() {
@@ -103,46 +86,7 @@ struct PermissionsOnboardingView: View {
             checkPermissions()
         }
     }
-    
-    private func requestInputMonitoringRegistrationIfNeeded(openSettingsAfterRequest: Bool = false) {
-        guard IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) != kIOHIDAccessTypeGranted else {
-            checkPermissions()
-            return
-        }
 
-        if openSettingsAfterRequest {
-            openInputMonitoringSettingsAfterRequest = true
-        }
-        guard !inputMonitoringRequestInFlight else { return }
-        inputMonitoringRequestInFlight = true
-
-        // Denied access does not tell us whether the app is listed in Settings.
-        // Submit the request before directing the user there, even when denied.
-        DispatchQueue.global(qos: .userInitiated).async {
-            _ = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
-            DispatchQueue.main.async {
-                inputMonitoringRequestInFlight = false
-                checkPermissions()
-
-                let shouldOpenSettings = openInputMonitoringSettingsAfterRequest
-                openInputMonitoringSettingsAfterRequest = false
-                if shouldOpenSettings && !inputMonitoringGranted {
-                    openInputMonitoringSettings()
-                }
-            }
-        }
-    }
-
-    private func openInputMonitoringSettings() {
-        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") else {
-            return
-        }
-        NSWorkspace.shared.open(url)
-    }
-
-    private func requestInputMonitoringPermission() {
-        requestInputMonitoringRegistrationIfNeeded(openSettingsAfterRequest: true)
-    }
 }
 
 struct PermissionRow: View {

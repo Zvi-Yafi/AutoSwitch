@@ -42,7 +42,7 @@ class GlobalKeyboardMonitor {
             CFRunLoopAddSource(CFRunLoopGetCurrent(), self.runLoopSource, .commonModes)
             CGEvent.tapEnable(tap: tap, enable: true)
             
-            appLog("PERMISSIONS: Tap created successfully. Waiting for first keystroke to confirm Input Monitoring is active...")
+            appLog("PERMISSIONS: Tap created successfully. Waiting for first keystroke to confirm keyboard monitoring is active...")
             self.setupResilienceTimer()
             
             CFRunLoopRun()
@@ -149,7 +149,7 @@ private func customEventTapCallback(proxy: CGEventTapProxy, type: CGEventType, e
         let count = monitor.tapEventsReceivedCount()
         monitor.incrementEventCount()
         if count == 0 {
-            appLog("PERMISSIONS: ✓ First keystroke received — Input Monitoring is ACTIVE and working.")
+            appLog("PERMISSIONS: ✓ First keystroke received — keyboard monitoring is ACTIVE and working.")
         }
     }
 

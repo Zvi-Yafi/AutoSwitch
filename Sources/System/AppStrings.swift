@@ -39,7 +39,6 @@ enum AppStrings {
     static var menuSettings: String { localized("menu.settings") }
     static var menuQuit: String { localized("menu.quit") }
     static var permissionAccessibility: String { localized("permissions.accessibility") }
-    static var permissionInputMonitoring: String { localized("permissions.inputMonitoring") }
     static var tabGeneral: String { localized("tab.general") }
     static var tabLanguages: String { localized("tab.languages") }
     static var tabBehavior: String { localized("tab.behavior") }
@@ -50,7 +49,6 @@ enum AppStrings {
     static var statusEnabled: String { localized("settings.status.enabled") }
     static var statusDisabled: String { localized("settings.status.disabled") }
     static var statusMissingAccessibilityPermission: String { localized("settings.status.missingAccessibilityPermission") }
-    static var statusMissingInputMonitoringPermission: String { localized("settings.status.missingInputMonitoringPermission") }
     static var statusMissingRequiredPermissions: String { localized("settings.status.missingRequiredPermissions") }
     static var settingsCorrectionSection: String { localized("settings.section.correction") }
     static var settingsShortcutsSection: String { localized("settings.section.shortcuts") }
@@ -72,8 +70,6 @@ enum AppStrings {
     static var onboardingDescription: String { localized("onboarding.description") }
     static var onboardingAccessibilityTitle: String { localized("onboarding.accessibility.title") }
     static var onboardingAccessibilityDesc: String { localized("onboarding.accessibility.description") }
-    static var onboardingInputMonitoringTitle: String { localized("onboarding.inputMonitoring.title") }
-    static var onboardingInputMonitoringDesc: String { localized("onboarding.inputMonitoring.description") }
     static var onboardingRequestPermission: String { localized("onboarding.requestPermission") }
     static var onboardingContinue: String { localized("onboarding.continue") }
     static var onboardingWaiting: String { localized("onboarding.waiting") }

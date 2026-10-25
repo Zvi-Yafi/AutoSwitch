@@ -49,26 +49,15 @@ import Foundation
         nonmutating set { storage.value = newValue }
     }
 }
-let kIOHIDAccessTypeGranted = 0
-let kIOHIDAccessTypeDenied = 1
-let kIOHIDAccessTypeUnknown = 2
-let kIOHIDRequestTypeListenEvent = 1
 struct PromptOption { func takeUnretainedValue() -> String { "prompt" } }
 let kAXTrustedCheckOptionPrompt = PromptOption()
-var access = kIOHIDAccessTypeDenied
-var grantOnRequest = false
-var requests = 0
-var openedURLs: [String] = []
-func AXIsProcessTrustedWithOptions(_ options: NSDictionary) -> Bool { false }
-func IOHIDCheckAccess(_ type: Int) -> Int { access }
-func IOHIDRequestAccess(_ type: Int) -> Bool {
-    requests += 1
-    if grantOnRequest { access = kIOHIDAccessTypeGranted }
-    return access == kIOHIDAccessTypeGranted
-}
-final class NSWorkspace {
-    static let shared = NSWorkspace()
-    func open(_ url: URL) { openedURLs.append(url.absoluteString) }
+var accessibilityGranted = false
+var prompts = 0
+var createdTimers = 0
+var invalidatedTimers = 0
+func AXIsProcessTrustedWithOptions(_ options: NSDictionary) -> Bool {
+    if options["prompt"] as? Bool == true { prompts += 1 }
+    return accessibilityGranted
 }
 final class DispatchQueue {
     enum QoS { case userInitiated }
@@ -82,100 +71,73 @@ final class DispatchQueue {
 }
 extension Double { static func now() -> Double { 0 } }
 final class Timer {
-    static func scheduledTimer(withTimeInterval: Double, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer { Timer() }
-    func invalidate() {}
+    static func scheduledTimer(withTimeInterval: Double, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer { createdTimers += 1; return Timer() }
+    func invalidate() { invalidatedTimers += 1 }
 }
 '''
 production = "\nstruct PermissionsOnboardingView {\n" + properties + "\n"
 production += "\n".join(methods)
 production += "\nfunc appear() {" + appear + "}\n"
 production += "func disappear() {" + disappear + "}\n"
-production += "func clickPermission() { requestInputMonitoringPermission() }\n"
-production += "func poll() { checkPermissions() }\n}\n"
+production += "func clickPermission() { requestAccessibilityPermission() }\n"
+production += "func poll() { checkPermissions() }\nfunc canContinue() -> Bool { accessibilityGranted }\n}\n"
 tests = r'''
 var failures = 0
 var count = 0
-let settingsURL = "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent"
 func expect(_ condition: @autoclosure () -> Bool, _ message: String) {
     if !condition() { failures += 1; print("  FAIL: \(message)") }
 }
 func run(_ name: String, _ body: () -> Void) {
     count += 1
-    access = kIOHIDAccessTypeDenied
-    grantOnRequest = false
-    requests = 0
-    openedURLs = []
+    accessibilityGranted = false
+    prompts = 0
+    createdTimers = 0
+    invalidatedTimers = 0
     DispatchQueue.main.work = []
     DispatchQueue.worker.work = []
     let before = failures
     body()
     print("\(before == failures ? "PASS" : "FAIL") \(name)")
 }
-func finishRequest() { DispatchQueue.worker.drain(); DispatchQueue.main.drain() }
-
-run("Denied first appearance requests access without opening Settings") {
+run("Missing Accessibility blocks completion without prompting at appearance") {
     let view = PermissionsOnboardingView()
     view.appear()
-    finishRequest()
-    expect(requests == 1, "Denied must not bypass the request")
-    expect(openedURLs.isEmpty, "Automatic registration must not open Settings")
+    expect(!view.canContinue(), "Missing access must block completion")
+    expect(prompts == 0 && createdTimers == 1, "Observe permission without an automatic prompt")
 }
-run("Unknown first appearance requests access") {
-    access = kIOHIDAccessTypeUnknown
-    PermissionsOnboardingView().appear()
-    finishRequest()
-    expect(requests == 1, "Unknown should submit a request")
-    expect(openedURLs.isEmpty, "Automatic request should not open Settings")
-}
-run("Granted access does not trigger another request") {
-    access = kIOHIDAccessTypeGranted
+run("Accessibility alone allows completion") {
+    accessibilityGranted = true
     let view = PermissionsOnboardingView()
-    view.appear(); view.clickPermission(); finishRequest()
-    expect(requests == 0 && openedURLs.isEmpty, "Already granted must remain quiet")
+    view.appear()
+    expect(view.canContinue() && prompts == 0, "No second permission may block completion")
 }
-run("Manual request opens Settings only after request returns") {
+run("User click explicitly requests Accessibility") {
     let view = PermissionsOnboardingView()
     view.clickPermission()
-    expect(openedURLs.isEmpty, "No opening before request execution")
-    DispatchQueue.worker.drain()
-    expect(requests == 1 && openedURLs.isEmpty, "Wait for main-thread completion")
+    expect(prompts == 1, "Exactly one explicit Accessibility prompt")
     DispatchQueue.main.drain()
-    expect(openedURLs == [settingsURL], "Open the Input Monitoring pane once")
+    expect(!view.canContinue(), "An unanswered prompt is not a grant")
 }
-run("Repeated clicks coalesce into a single request") {
+run("External grant is recognized after requesting") {
     let view = PermissionsOnboardingView()
-    for _ in 0..<10 { view.clickPermission() }
-    finishRequest()
-    expect(requests == 1 && openedURLs == [settingsURL], "No concurrent requests or duplicate openings")
+    view.clickPermission()
+    accessibilityGranted = true
+    DispatchQueue.main.drain()
+    expect(view.canContinue(), "Refresh must recognize the actual grant")
 }
-run("Click during automatic registration uses the pending request") {
+run("Polling observes revocation without requesting again") {
+    accessibilityGranted = true
     let view = PermissionsOnboardingView()
-    view.appear(); view.clickPermission(); finishRequest()
-    expect(requests == 1 && openedURLs == [settingsURL], "Honor the click without a second request")
+    view.appear()
+    accessibilityGranted = false
+    view.poll()
+    expect(!view.canContinue() && prompts == 0, "Revocation must remove readiness without prompting")
 }
-run("Granted result does not open Settings") {
-    grantOnRequest = true
+run("Dismissal cancels permission polling") {
     let view = PermissionsOnboardingView()
-    view.clickPermission(); finishRequest()
-    expect(requests == 1 && openedURLs.isEmpty, "Do not redirect after access is granted")
-}
-run("Dismissal cancels pending Settings opening") {
-    let view = PermissionsOnboardingView()
-    view.clickPermission(); view.disappear(); finishRequest()
-    expect(requests == 1 && openedURLs.isEmpty, "No delayed opening after dismissal")
-}
-run("Polling does not submit additional requests") {
-    let view = PermissionsOnboardingView()
-    view.appear(); finishRequest()
-    for _ in 0..<10 { view.poll() }
-    finishRequest()
-    expect(requests == 1 && openedURLs.isEmpty, "Poll must only read status")
-}
-run("Retry remains possible after a denied request completes") {
-    let view = PermissionsOnboardingView()
-    view.clickPermission(); finishRequest()
-    view.clickPermission(); finishRequest()
-    expect(requests == 2 && openedURLs.count == 2, "In-flight flag must clear on completion")
+    view.appear()
+    view.disappear()
+    expect(invalidatedTimers == 1, "No polling timer after dismissal")
 }
 print("Scenarios: \(count); assertion failures: \(failures)")
 exit(failures == 0 ? 0 : 1)

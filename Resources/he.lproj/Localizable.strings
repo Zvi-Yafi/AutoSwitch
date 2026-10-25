@@ -27,7 +27,7 @@
 "settings.refreshExport" = "רענן ייצוא";
 "settings.importSettingsJSON" = "ייבוא הגדרות JSON";
 "settings.importSettings" = "ייבא הגדרות";
-"settings.requiredEntitlements" = "הרשאות נדרשות: נגישות וניטור קלט";
+"settings.requiredEntitlements" = "הרשאה נדרשת: נגישות";
 "settings.addBundleId" = "הוסף Bundle ID";
 "settings.addIgnoredWord" = "הוסף מילה להתעלמות";
 "settings.addAbbreviationException" = "הוסף חריג לקיצור";
@@ -36,7 +36,6 @@
 "menu.settings" = "הגדרות...";
 "menu.quit" = "יציאה";
 "permissions.accessibility" = "AutoSwitch זקוקה להרשאות נגישות כדי לזהות מתי הוקלד בטעות מקור קלט שגוי ולתקן זאת.";
-"permissions.inputMonitoring" = "AutoSwitch זקוקה לניטור קלט כדי לזהות הקשות ולתקן טעויות פריסה.";
 "supportTier.fullSupport" = "תמיכה מלאה";
 "supportTier.bestEffort" = "תמיכה חלקית";
 "supportTier.unsupported" = "ללא תמיכה";
@@ -50,7 +49,6 @@
 "settings.status.enabled" = "פעיל";
 "settings.status.disabled" = "כבוי";
 "settings.status.missingAccessibilityPermission" = "חסרה הרשאת נגישות";
-"settings.status.missingInputMonitoringPermission" = "חסרה הרשאת ניטור קלט";
 "settings.status.missingRequiredPermissions" = "חסרות הרשאות נדרשות";
 "settings.section.correction" = "תיקון";
 "settings.section.shortcuts" = "קיצורי מקלדת";
@@ -69,11 +67,9 @@
 "settings.addBundleId.hint" = "לדוגמה: com.apple.Safari";
 "settings.exportImport.disclosure" = "ייצוא / ייבוא הגדרות";
 "onboarding.title" = "ברוכים הבאים ל-AutoSwitch";
-"onboarding.description" = "AutoSwitch זקוקה לשתי הרשאות מערכת כדי לתקן אוטומטית שגיאות פריסת מקלדת. אנא אשר את שתי ההרשאות למטה.";
+"onboarding.description" = "AutoSwitch זקוקה להרשאת נגישות כדי לזהות שגיאות בפריסת המקלדת ולתקן אותן אוטומטית. נא לאשר את ההרשאה למטה.";
 "onboarding.accessibility.title" = "הרשאת נגישות";
 "onboarding.accessibility.description" = "מאפשרת ל-AutoSwitch לזהות מתי הקלדת בפריסת מקלדת שגויה ולתקן זאת אוטומטית.";
-"onboarding.inputMonitoring.title" = "הרשאת ניטור קלט";
-"onboarding.inputMonitoring.description" = "מאפשרת ל-AutoSwitch לעקוב אחר הקשות ולזהות טעויות פריסה בזמן אמת.";
 "onboarding.requestPermission" = "פתח הגדרות מערכת";
 "onboarding.continue" = "התחל להשתמש ב-AutoSwitch";
-"onboarding.waiting" = "ממתין לאישור הרשאות...";
+"onboarding.waiting" = "ממתין לאישור הרשאת נגישות...";

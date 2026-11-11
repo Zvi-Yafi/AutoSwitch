@@ -152,11 +152,11 @@ class AutoSwitchStateMachine {
                         self.stateQueue.async(flags: .barrier) { self._transition(to: .injecting) }
 
                         var fullCorrectedWord = correctedWord
-                        var originalLengthToDelete = snapshot.originalWord.count + snapshot.boundaryCharacter.count
+                        var fullOriginalWord = snapshot.originalWord
 
                         if let pending = self.consumePendingAmbiguousIfCompatible(target: candidate.target, appBundleId: snapshot.activeAppBundleId, generation: capturedGeneration) {
                             fullCorrectedWord = pending.correctedWord + pending.delimiter + correctedWord
-                            originalLengthToDelete += pending.originalWord.count + pending.delimiter.count
+                            fullOriginalWord = pending.originalWord + pending.delimiter + snapshot.originalWord
                         } else {
                             self.clearPendingAmbiguousCorrection()
                         }
@@ -171,18 +171,23 @@ class AutoSwitchStateMachine {
                             timestamp: Date(),
                             generation: capturedGeneration
                         )
-                        CorrectionHistory.shared.push(item)
-
                         LayoutMapper.shared.warmCache(for: candidate.target.inputSourceID)
                         WordBufferManager.shared.setLastInjectedLayout(candidate.target.inputSourceID)
 
                         TextInjector.shared.inject(
-                            originalLength: originalLengthToDelete,
+                            originalWord: fullOriginalWord,
                             correctedWord: fullCorrectedWord,
                             delimiter: snapshot.boundaryCharacter,
                             layoutToSwitch: candidate.target.inputSourceID
-                        ) {
-                            DispatchQueue.main.async { self.injectionCompleted() }
+                        ) { applied in
+                            DispatchQueue.main.async {
+                                if applied {
+                                    CorrectionHistory.shared.push(item)
+                                } else {
+                                    WordBufferManager.shared.clearLastInjectedLayout()
+                                }
+                                self.injectionCompleted()
+                            }
                         }
                     }
                 case .ambiguous(let candidate):
@@ -276,12 +281,17 @@ class AutoSwitchStateMachine {
             }
             WordBufferManager.shared.setLastInjectedLayout(item.previousLayout)
             TextInjector.shared.inject(
-                originalLength: item.correctedWord.count + item.delimiter.count,
+                originalWord: item.correctedWord,
                 correctedWord: item.originalWord,
                 delimiter: item.delimiter,
                 layoutToSwitch: item.previousLayout
-            ) {
-                DispatchQueue.main.async { self.injectionCompleted() }
+            ) { applied in
+                DispatchQueue.main.async {
+                    if !applied {
+                        WordBufferManager.shared.clearLastInjectedLayout()
+                    }
+                    self.injectionCompleted()
+                }
             }
         }
         return true

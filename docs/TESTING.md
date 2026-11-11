@@ -1,9 +1,26 @@
-# Testing 1.1.5
+# Testing 1.1.6
 
 See VERIFICATION.md for the tested snapshot, observed results and limitations.
 Focused regressions are `scripts/run_monitor_startup_regression.py`,
 `scripts/run_permissions_onboarding_regression.py` and
-`scripts/run_geresh_policy_regression.sh`.
+`scripts/run_geresh_policy_regression.sh`. Spotlight injection regressions run via
+`python3 scripts/run_spotlight_injection_regression.py` with in-memory system
+services; they do not send keyboard events or prove live Spotlight behavior.
+
+## Spotlight replacement
+
+- In an empty Spotlight query with Hebrew layout, physically type the keys for
+  `terminal` and then Space. Confirm `terminal` appears without an extra Hebrew
+  character. Repeat after returning to Hebrew layout.
+- Immediately undo the correction; confirm the source text is restored.
+- Repeat with an existing numeric prefix and confirm it is preserved.
+- Repeat the correction in a new TextEdit document to check the ordinary path.
+- Exercise selected inline completions, consumed spaces and UTF-16 prefixes.
+- Cover both the original Spotlight process and the Siri-hosted
+  `SpotlightSearchField`; unrelated Siri conversation fields must not use this path.
+- Change focus during AX selection, failed AX reads, fallback deletion and the
+  queued input-source switch; no remaining actions should target the new field.
+- Confirm missing focus identity cancels rather than triggering blind fallback.
 
 ## Single settings window
 
@@ -45,9 +62,10 @@ Focused regressions are `scripts/run_monitor_startup_regression.py`,
 - Test password managers and custom browser password fields.
 - Change windows, apps, text fields and caret position while a correction is pending.
 - Check that a correction never deletes or inserts text in a different field.
-- Accessibility lookup currently treats an inspection failure as non-secure; injection
-  does not revalidate focus within every posted event. These are known review items,
-  not established guarantees. Disable correction in apps where behavior is uncertain.
+- Accessibility lookup currently treats a secure-field inspection failure as
+  non-secure. Injection rechecks focus before each key pair or Unicode payload,
+  but the check and asynchronous event delivery are not atomic. Broad secure-field
+  coverage and delivery-time focus races remain review items, not guarantees.
 
 ## Release checks
 

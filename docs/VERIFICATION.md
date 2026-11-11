@@ -1,4 +1,49 @@
-# Verification — 1.1.5 (build 14)
+# Verification — 1.1.6 (build 15)
+
+Targeted validation on 2026-11-10 covers Spotlight leaving a source character
+after correction on Space. The candidate uses public commit
+`a0e26a1febcfd43c61b3952908065351de59db03` with these two product files replaced:
+
+- TextInjector.swift SHA-256:
+  `3573193b0645dba4752e0c9a3369362ced0021834545289d20989c4485d435c9`.
+- AutoSwitchStateMachine.swift SHA-256:
+  `372a67afaef71d5abe6c9879193363399553934e5e222251ee99871ff38d4a2f`.
+
+All other product Swift sources and resources match the public baseline.
+Version/build metadata and release documentation change after candidate QA.
+
+- On macOS 27.0.1, UI inspection identified SpotlightSearchField in the Siri host
+  (com.apple.campo). A new regression failed against the previous host detection
+  and passed after adding this specific field. Other Siri fields are excluded.
+- All 27 isolated injection scenarios passed. The actual TextInjector class runs
+  with rebound AX/keyboard/scheduling services and real AXValue/CFRange bridging;
+  these tests do not simulate the operating system's actual event delivery.
+- Debug XCTest executed 40 tests, two skipped, zero failures. Release XCTest
+  executed 35 tests, two skipped, zero failures. Skips require additional Latin
+  layouts. Bulk word evaluation and efficiency benchmarks were excluded. Test
+  preferences and logs used a separate temporary home directory.
+- Xcode Release built arm64 and x86_64 targeting macOS 13. The local candidate's
+  Developer ID signature passed strict verification. Its process path and active
+  Accessibility permission/event tap were confirmed; existing permissions were
+  retained and the installed 1.1.5 app was preserved.
+- The maintainer reproduced the leftover character with installed 1.1.5, then
+  physically repeated the same query twice with the candidate and confirmed the
+  corrected word without a leftover character. The maintainer also confirmed
+  immediate Undo, preservation of a numeric query prefix, and correction in a
+  new TextEdit document. These typing results are maintainer observations, not
+  independently captured screenshots of the final text.
+- No actual Intel/macOS 13 execution, clean-machine installation or broad secure
+  field coverage was performed. Focus checks cannot make asynchronous keyboard
+  delivery atomic. Unsupported AX ranges retain the keyboard fallback only while
+  the original focused element can still be confirmed.
+
+The final distribution still requires Developer ID verification, Apple
+notarization, stapling, Gatekeeper assessment and download checksum verification.
+Release notes record those results after completion.
+
+---
+
+# Historical verification — 1.1.5 (build 14)
 
 Targeted validation on 2026-10-25 covers the duplicate-settings-window fix.
 The tested scaffold was public commit `df8b9ba863277150777214814b961f5c6e324785`

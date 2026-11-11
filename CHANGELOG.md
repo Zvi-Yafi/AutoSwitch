@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.6 — 2026-11-11
+
+- Replace the verified source range in Spotlight so inline completions do not
+  consume a Backspace and leave a source-language character behind. Insert the
+  corrected word and its trailing space together.
+- Recognize the Spotlight search field when hosted by Siri on newer macOS
+  versions, while keeping other Siri text fields on the normal correction path.
+- Recheck the original focused field before deleting or inserting text and before
+  switching input sources; cancel when focus cannot be confirmed.
+- Add 27 isolated injection regressions covering completions, UTF-16 ranges,
+  fallback behavior and focus changes.
+
 ## 1.1.5 — 2026-10-25
 
 - Keep one populated settings window for startup, setup completion, menu-bar

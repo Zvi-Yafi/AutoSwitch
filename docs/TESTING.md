@@ -1,4 +1,4 @@
-# Testing 1.1.6
+# Testing 1.1.7
 
 See VERIFICATION.md for the tested snapshot, observed results and limitations.
 Focused regressions are `scripts/run_monitor_startup_regression.py`,
@@ -6,6 +6,27 @@ Focused regressions are `scripts/run_monitor_startup_regression.py`,
 `scripts/run_geresh_policy_regression.sh`. Spotlight injection regressions run via
 `python3 scripts/run_spotlight_injection_regression.py` with in-memory system
 services; they do not send keyboard events or prove live Spotlight behavior.
+
+## Deleting deferred words
+
+Run `python3 scripts/run_deletion_regression.py`. It compiles the production
+state machine, word buffer, history, models and event callback against in-memory
+services and manually scheduled queues. `--source-root /path/to/earlier/source`
+runs the same expectations against another snapshot. No global keyboard events,
+input-source changes, preferences or permission calls are made.
+
+- Defer an ambiguous word at a boundary, delete it completely, then type a new
+  word that should be corrected. Confirm only the new word is replaced.
+- Repeat with partial Backspace, Option/Command-Delete, Forward Delete and
+  select-all followed by Delete. Bulk deletion must not retain a partial buffer.
+- Delay each evaluation result until after deletion and new typing; ensure it
+  cannot restore pending text, clear the new buffer or switch input sources.
+- Delay accepted/switch-only work on the main queue, then delete before it runs.
+- Preserve a legitimate two-word correction when the first word was not edited,
+  trailing punctuation, skip-next, Undo and recovery from failed injection.
+- Verify the original scenario physically in a new TextEdit document, including
+  ordinary Delete, word deletion and immediate Undo. Synthetic/mocked event
+  checks do not replace this typing check or prove actual GCD delivery timing.
 
 ## Spotlight replacement
 

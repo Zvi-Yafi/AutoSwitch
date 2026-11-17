@@ -225,9 +225,18 @@ private func customEventTapCallback(proxy: CGEventTapProxy, type: CGEventType, e
             return Unmanaged.passUnretained(event)
         }
         
-        // Backspace
+        // Only an unmodified Backspace removes one buffered keystroke.
+        // Word/line deletion and forward deletion invalidate the whole buffer.
         if keycode == 51 {
-            stateMachine.handleBackspace()
+            if flags.contains(.maskCommand) || flags.contains(.maskControl) || flags.contains(.maskAlternate) {
+                stateMachine.handleNavigationEvent()
+            } else {
+                stateMachine.handleBackspace()
+            }
+            return Unmanaged.passUnretained(event)
+        }
+        if keycode == 117 {
+            stateMachine.handleNavigationEvent()
             return Unmanaged.passUnretained(event)
         }
         

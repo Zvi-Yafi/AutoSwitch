@@ -79,6 +79,17 @@ class AutoSwitchStateMachine {
 
     func handleBackspace() {
         stateQueue.async(flags: .barrier) {
+            guard self._currentState == .idle || self._currentState == .buffering || self._currentState == .evaluating else {
+                return
+            }
+            // A deletion invalidates the previous word and any evaluation of
+            // the text before the edit, even when the current buffer is empty.
+            self._currentGeneration += 1
+            self.pendingAmbiguousCorrection = nil
+            if self._currentState == .evaluating {
+                self._transition(to: .idle)
+                return
+            }
             guard self._currentState == .buffering else { return }
             WordBufferManager.shared.removeLast()
             if WordBufferManager.shared.isEmpty {
@@ -137,61 +148,64 @@ class AutoSwitchStateMachine {
                     return
                 }
 
-                switch LanguageDecisionEngine.shared.evaluate(snapshot: snapshot) {
-                case .accepted(let candidate):
-                    let correctedWord = candidate.word
-                    appLog("Correction Approved: \(snapshot.originalWord) -> \(correctedWord)", level: .debug)
-                    DispatchQueue.main.async {
-                        guard snapshot.generationAtCapture == self.currentGeneration,
-                              self.currentState == .evaluating else {
-                            appLog("State moved on before correction could apply")
-                            self.stateQueue.async(flags: .barrier) { self._transition(to: .idle) }
-                            return
-                        }
+                let decision = LanguageDecisionEngine.shared.evaluate(snapshot: snapshot)
+                self.stateQueue.async(flags: .barrier) {
+                    // Apply every result on the same queue as edits. A result
+                    // captured before a deletion must not restore pending text
+                    // or clear the buffer of the word typed after it.
+                    guard capturedGeneration == self._currentGeneration,
+                          self._currentState == .evaluating else {
+                        appLog("State moved on before evaluation could apply")
+                        return
+                    }
 
-                        self.stateQueue.async(flags: .barrier) { self._transition(to: .injecting) }
-
-                        var fullCorrectedWord = correctedWord
-                        var fullOriginalWord = snapshot.originalWord
-
-                        if let pending = self.consumePendingAmbiguousIfCompatible(target: candidate.target, appBundleId: snapshot.activeAppBundleId, generation: capturedGeneration) {
-                            fullCorrectedWord = pending.correctedWord + pending.delimiter + correctedWord
-                            fullOriginalWord = pending.originalWord + pending.delimiter + snapshot.originalWord
-                        } else {
-                            self.clearPendingAmbiguousCorrection()
-                        }
-
-                        let item = CorrectionHistoryItem(
-                            originalWord: snapshot.originalWord,
-                            correctedWord: correctedWord,
-                            delimiter: snapshot.boundaryCharacter,
-                            previousLayout: InputSourceController.shared.getCurrentLayoutID(),
-                            targetInputSourceID: candidate.target.inputSourceID,
+                    switch decision {
+                    case .accepted(let candidate):
+                        let correctedWord = candidate.word
+                        let pending = self.consumePendingAmbiguousIfCompatible(
+                            target: candidate.target,
                             appBundleId: snapshot.activeAppBundleId,
-                            timestamp: Date(),
                             generation: capturedGeneration
                         )
-                        LayoutMapper.shared.warmCache(for: candidate.target.inputSourceID)
-                        WordBufferManager.shared.setLastInjectedLayout(candidate.target.inputSourceID)
+                        let fullCorrectedWord = (pending.map { $0.correctedWord + $0.delimiter } ?? "") + correctedWord
+                        let fullOriginalWord = (pending.map { $0.originalWord + $0.delimiter } ?? "") + snapshot.originalWord
 
-                        TextInjector.shared.inject(
-                            originalWord: fullOriginalWord,
-                            correctedWord: fullCorrectedWord,
-                            delimiter: snapshot.boundaryCharacter,
-                            layoutToSwitch: candidate.target.inputSourceID
-                        ) { applied in
-                            DispatchQueue.main.async {
-                                if applied {
-                                    CorrectionHistory.shared.push(item)
-                                } else {
-                                    WordBufferManager.shared.clearLastInjectedLayout()
+                        appLog("Correction Approved: \(snapshot.originalWord) -> \(correctedWord)", level: .debug)
+                        DispatchQueue.main.async {
+                            guard self.beginInjection(generation: capturedGeneration) else {
+                                return
+                            }
+
+                            let item = CorrectionHistoryItem(
+                                originalWord: snapshot.originalWord,
+                                correctedWord: correctedWord,
+                                delimiter: snapshot.boundaryCharacter,
+                                previousLayout: InputSourceController.shared.getCurrentLayoutID(),
+                                targetInputSourceID: candidate.target.inputSourceID,
+                                appBundleId: snapshot.activeAppBundleId,
+                                timestamp: Date(),
+                                generation: capturedGeneration
+                            )
+                            LayoutMapper.shared.warmCache(for: candidate.target.inputSourceID)
+                            WordBufferManager.shared.setLastInjectedLayout(candidate.target.inputSourceID)
+
+                            TextInjector.shared.inject(
+                                originalWord: fullOriginalWord,
+                                correctedWord: fullCorrectedWord,
+                                delimiter: snapshot.boundaryCharacter,
+                                layoutToSwitch: candidate.target.inputSourceID
+                            ) { applied in
+                                DispatchQueue.main.async {
+                                    if applied {
+                                        CorrectionHistory.shared.push(item)
+                                    } else {
+                                        WordBufferManager.shared.clearLastInjectedLayout()
+                                    }
+                                    self.injectionCompleted()
                                 }
-                                self.injectionCompleted()
                             }
                         }
-                    }
-                case .ambiguous(let candidate):
-                    self.stateQueue.async(flags: .barrier) {
+                    case .ambiguous(let candidate):
                         if SettingsStore.shared.getSettings().enableAmbiguousCorrection {
                             appLog("Correction Ambiguous: \(snapshot.originalWord) -> \(candidate.word)", level: .debug)
                             self.pendingAmbiguousCorrection = PendingAmbiguousCorrection(
@@ -206,46 +220,48 @@ class AutoSwitchStateMachine {
                             self.pendingAmbiguousCorrection = nil
                         }
                         self._transition(to: .idle)
-                    }
-                case .switchOnly(let targetInputSourceID, _):
-                    appLog("Correction SwitchOnly: '\(snapshot.originalWord)' layout -> \(targetInputSourceID)", level: .debug)
-                    DispatchQueue.main.async {
-                        guard snapshot.generationAtCapture == self.currentGeneration,
-                              self.currentState == .evaluating else {
-                            self.stateQueue.async(flags: .barrier) { self._transition(to: .idle) }
-                            return
-                        }
-                        self.stateQueue.async(flags: .barrier) { self._transition(to: .injecting) }
-                        let previousLayout = InputSourceController.shared.getCurrentLayoutID()
-                        let item = CorrectionHistoryItem(
-                            originalWord: snapshot.originalWord,
-                            correctedWord: snapshot.originalWord,
-                            delimiter: snapshot.boundaryCharacter,
-                            previousLayout: previousLayout,
-                            targetInputSourceID: targetInputSourceID,
-                            appBundleId: snapshot.activeAppBundleId,
-                            timestamp: Date(),
-                            generation: capturedGeneration
-                        )
-                        CorrectionHistory.shared.push(item)
-                        WordBufferManager.shared.setLastInjectedLayout(targetInputSourceID)
-                        _ = InputSourceController.shared.switchLayout(to: targetInputSourceID)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                            self.injectionCompleted()
-                        }
-                    }
-                case .rejected:
-                    appLog("Correction Rejected for: \(snapshot.originalWord)", level: .debug)
-                    DispatchQueue.main.async {
-                        if self.currentState == .evaluating {
-                            self.stateQueue.async(flags: .barrier) {
-                                self.clearPendingAmbiguousCorrection()
-                                self._transition(to: .idle)
+                    case .switchOnly(let targetInputSourceID, _):
+                        appLog("Correction SwitchOnly: '\(snapshot.originalWord)' layout -> \(targetInputSourceID)", level: .debug)
+                        DispatchQueue.main.async {
+                            guard self.beginInjection(generation: capturedGeneration) else {
+                                return
+                            }
+                            let previousLayout = InputSourceController.shared.getCurrentLayoutID()
+                            let item = CorrectionHistoryItem(
+                                originalWord: snapshot.originalWord,
+                                correctedWord: snapshot.originalWord,
+                                delimiter: snapshot.boundaryCharacter,
+                                previousLayout: previousLayout,
+                                targetInputSourceID: targetInputSourceID,
+                                appBundleId: snapshot.activeAppBundleId,
+                                timestamp: Date(),
+                                generation: capturedGeneration
+                            )
+                            CorrectionHistory.shared.push(item)
+                            WordBufferManager.shared.setLastInjectedLayout(targetInputSourceID)
+                            _ = InputSourceController.shared.switchLayout(to: targetInputSourceID)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                self.injectionCompleted()
                             }
                         }
+                    case .rejected:
+                        appLog("Correction Rejected for: \(snapshot.originalWord)", level: .debug)
+                        self.clearPendingAmbiguousCorrection()
+                        self._transition(to: .idle)
                     }
                 }
             }
+        }
+    }
+
+    private func beginInjection(generation: Int) -> Bool {
+        stateQueue.sync {
+            // Recheck after waiting for the main queue, and claim the state
+            // atomically with respect to deletions and other invalidations.
+            guard generation == self._currentGeneration,
+                  self._currentState == .evaluating else { return false }
+            self._transition(to: .injecting)
+            return true
         }
     }
 

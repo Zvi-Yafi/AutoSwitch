@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.7 — 2026-11-17
+
+- Discard a deferred ambiguous correction when text is deleted, so the next
+  correction cannot restore a word that was erased.
+- Invalidate evaluation results captured before an edit, including work waiting
+  on the main queue. Keep the newly typed word's buffer intact.
+- Treat word/line deletion and Forward Delete as changes to the whole tracked
+  context; ordinary Backspace still removes one buffered keystroke.
+- Add 26 isolated regressions covering deletion, delayed decisions, contextual
+  correction, punctuation, skip, undo and injection failure.
+
 ## 1.1.6 — 2026-11-11
 
 - Replace the verified source range in Spotlight so inline completions do not

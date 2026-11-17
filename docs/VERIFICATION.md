@@ -1,4 +1,49 @@
-# Verification — 1.1.6 (build 15)
+# Verification — 1.1.7 (build 16)
+
+Targeted validation on 2026-11-17 covers a deferred ambiguous word being added
+to a later correction after the original word was deleted. The QA candidate
+uses public commit `0adc0fbd098cb825bdf04ceed5ac9954d4f101da` with these two
+product files replaced:
+
+- AutoSwitchStateMachine.swift SHA-256:
+  `6ba8402b954921182f133ee4af3ee89ae195a0c55d192d7d9c3e7399fb04dc75`.
+- GlobalKeyboardMonitor.swift SHA-256:
+  `7d55f209b5366097490ca49d98c0b384ad232a05602ed79ec10e10646f837fa8`.
+
+All 22 product Swift/resource files match the tested candidate. Version/build
+metadata and release documentation change after candidate QA.
+
+- All 26 deletion scenarios passed. The runner compiles the production state
+  machine, buffer, history, models and keyboard callback with in-memory services
+  and deterministic queues. Against unchanged 1.1.6, the same expectations failed
+  in 15 scenarios (45 assertions), including restoration of an erased word and
+  late results affecting new text. This checks edit lifetimes and control flow,
+  not actual GCD scheduling, layout mapping or operating-system event delivery.
+- The existing 27 isolated Spotlight injection scenarios passed.
+- Debug XCTest executed 40 tests, two skipped, zero failures. Release XCTest
+  executed 35 tests, two skipped, zero failures. The skipped cases need additional
+  Latin layouts. Bulk word evaluation and efficiency benchmarks were excluded.
+  Test preferences and logs used a separate temporary home directory.
+- Xcode Release built arm64 and x86_64 with minimum macOS 13. The candidate's
+  local Developer ID signature passed strict verification. The process path
+  confirmed the temporary candidate, and its UI reported correction active with
+  ambiguity enabled. Existing permissions were retained for QA.
+- The maintainer physically confirmed three scenarios in a new TextEdit document:
+  deletion of a deferred word followed by correction without the erased prefix,
+  word/selection deletion followed by clean correction, and immediate Undo.
+  These typing results are maintainer confirmations. The UI tool timed out when
+  opening TextEdit, so there are no independently captured final-text screenshots.
+- Actual Intel/macOS 13 execution, a new-machine installation and broad secure
+  field coverage were not verified. Focus checks and asynchronous keyboard
+  delivery are not atomic.
+
+Final distribution still requires Developer ID verification, Apple notarization,
+stapling, Gatekeeper assessment and public-download checksum verification.
+Release notes record those results after completion.
+
+---
+
+# Historical verification — 1.1.6 (build 15)
 
 Targeted validation on 2026-11-10 covers Spotlight leaving a source character
 after correction on Space. The candidate uses public commit
